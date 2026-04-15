@@ -178,23 +178,26 @@ const getPaintLiters = (area) => {
         </button>
       </div>
 
-      {/* 5. HISTORY */}
-      <div style={{ marginTop: '30px' }}>
-        <h3 style={{ fontSize: '0.9rem', color: '#a0aec0' }}>History ({takeoffs.length})</h3>
-        <div style={{ maxHeight: '200px', overflowY: 'auto', marginTop: '10px' }}>
-{takeoffs.map((t, i) => (
-  <div key={i} style={{ borderBottom: '1px solid #eee', padding: '10px' }}>
-    <p><strong>{t.label}</strong></p>
-    <p>Area: {t.floorArea.toFixed(2)} m²</p>
-    {t.mode === 'interior' && (
-      <p style={{ color: '#3182ce', fontWeight: 'bold' }}>
-        Paint Needed: {getPaintLiters(t.wallArea)} Liters
-      </p>
-    )}
-  </div>
-))}
+{/* 5. HISTORY */}
+<div style={{ marginTop: '30px' }}>
+  <h3 style={{ fontSize: '0.9rem', color: '#a0aec0' }}>History ({takeoffs.length})</h3>
+  <div style={{ maxHeight: '200px', overflowY: 'auto', marginTop: '10px' }}>
+    {takeoffs.map((t, i) => {
+      // Calculate paint on the fly for the display
+      const paint = (t.wallArea / 12 * 2).toFixed(1); 
+      
+      return (
+        <div key={i} style={{ fontSize: '0.75rem', padding: '10px', backgroundColor: '#2d3748', marginBottom: '8px', borderRadius: '4px', borderLeft: t.mode === 'interior' ? '4px solid #48bb78' : '4px solid #e53e3e' }}>
+          <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{t.label}</div>
+          <div>Area: {t.wallArea?.toFixed(1) || t.area?.toFixed(1)}m²</div>
+          {t.mode === 'interior' && (
+            <div style={{ color: '#63b3ed', marginTop: '4px' }}>💧 Needs approx. {paint}L Paint</div>
+          )}
         </div>
-      </div>
+      );
+    })}
+  </div>
+</div>
     </div>
   );
 };
