@@ -6,7 +6,10 @@ const Sidebar = ({ currentSettings, setSettings, mode, setMode, onSave, onUndo, 
   const updateCount = (key, value) => {
     setSettings({ ...currentSettings, [key]: Math.max(0, (currentSettings[key] || 0) + value) });
   };
-
+const getPaintLiters = (area) => {
+  const coveragePerLiter = 12; // Standard Melbourne coverage
+  return ((area / coveragePerLiter) * 2).toFixed(2); // 2 coats
+};
   return (
     <div style={{ width: '300px', backgroundColor: '#1a202c', color: 'white', padding: '20px', height: '100vh', overflowY: 'auto', borderRight: '2px solid #2d3748' }}>
       <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold', borderBottom: '1px solid #4a5568', paddingBottom: '10px', color: '#63b3ed' }}>RAV Property Projects</h2>
@@ -179,11 +182,17 @@ const Sidebar = ({ currentSettings, setSettings, mode, setMode, onSave, onUndo, 
       <div style={{ marginTop: '30px' }}>
         <h3 style={{ fontSize: '0.9rem', color: '#a0aec0' }}>History ({takeoffs.length})</h3>
         <div style={{ maxHeight: '200px', overflowY: 'auto', marginTop: '10px' }}>
-          {takeoffs.map((t, i) => (
-            <div key={i} style={{ fontSize: '0.75rem', padding: '8px', backgroundColor: '#2d3748', marginBottom: '5px', borderRadius: '4px' }}>
-              <strong>{t.label}</strong>: {(t.wallArea || t.area || 0).toFixed(1)}m²
-            </div>
-          ))}
+{takeoffs.map((t, i) => (
+  <div key={i} style={{ borderBottom: '1px solid #eee', padding: '10px' }}>
+    <p><strong>{t.label}</strong></p>
+    <p>Area: {t.floorArea.toFixed(2)} m²</p>
+    {t.mode === 'interior' && (
+      <p style={{ color: '#3182ce', fontWeight: 'bold' }}>
+        Paint Needed: {getPaintLiters(t.wallArea)} Liters
+      </p>
+    )}
+  </div>
+))}
         </div>
       </div>
     </div>
