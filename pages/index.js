@@ -10,44 +10,50 @@ const TakeoffCanvas = dynamic(() => import('../components/TakeoffCanvas'), {
   loading: () => <div style={{ height: '100vh', background: '#f0f0f0' }}>Loading Plan...</div>
 });
 
+// pages/index.js
+
 export default function App() {
-  const [mode, setMode] = useState('interior'); // 'interior' or 'exterior'
+  // 1. Add the mode state here
+  const [mode, setMode] = useState('interior'); 
+  
   const [settings, setSettings] = useState({
     ceilingType: 'standard',
     windowType: 'aluminum',
+    exteriorType: 'weatherboard', // Default for exterior
+    wallHeight: 2.4,              // Used for weatherboards/fences
     doors: 0,
-    windows: 0,
-    cabinets: 0
+    windows: 0
   });
 
   const [takeoffs, setTakeoffs] = useState([]);
 
-  const handleCompleteTakeoff = (points, calculatedData) => {
-    const newEntry = {
-      ...settings,
-      ...calculatedData,
-      points,
-      type: mode,
-      label: `${mode === 'interior' ? 'Room' : 'Exterior'} ${takeoffs.length + 1}`,
-      subTotal: 0 // This will be calculated by your lib/calculations engine
-    };
-    setTakeoffs([...takeoffs, newEntry]);
+  // 2. This function now handles both types
+  const handleSave = (points) => {
+    let data;
+    if (mode === 'interior') {
+      const area = calculatePolygonArea(points, currentScale);
+      data = { floorArea: area, wallArea: area * 2.5 }; // Simplified wall calc
+    } else {
+      data = calculateLinearFeature(points, currentScale, settings.wallHeight, settings.exteriorType);
+    }
+
+    setTakeoffs([...takeoffs, { ...settings, points, mode, ...data }]);
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+    <div style={{ display: 'flex' }}>
+      {/* Pass mode and setMode to the Sidebar */}
       <Sidebar 
-        settings={settings} 
+        currentSettings={settings} 
         setSettings={setSettings} 
         mode={mode} 
-        setMode={setMode}
+        setMode={setMode} 
         takeoffs={takeoffs}
-        onExport={() => exportProfessionalReport(takeoffs, 5000)} // Placeholder total
+        onSave={handleSave}
       />
       <TakeoffCanvas 
-        mode={mode}
-        savedTakeoffs={takeoffs} 
-        onComplete={handleCompleteTakeoff} 
+        mode={mode} // Pass mode to Canvas so it knows to close the polygon or not
+        onComplete={handleSave} 
       />
     </div>
   );
