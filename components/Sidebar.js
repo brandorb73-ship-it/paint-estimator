@@ -85,10 +85,27 @@ const Sidebar = ({ currentSettings, setSettings, mode, setMode, onSave, onExport
       {/* 4. ACTIONS */}
       <div style={{ marginTop: '30px', borderTop: '1px solid #4a5568', paddingTop: '20px' }}>
         <button 
+  onClick={onUndo}
+  disabled={takeoffs.length === 0}
+  style={{ 
+    width: '100%', 
+    padding: '10px', 
+    backgroundColor: '#e53e3e', 
+    color: 'white', 
+    marginBottom: '10px', 
+    borderRadius: '4px', 
+    border: 'none', 
+    cursor: takeoffs.length === 0 ? 'not-allowed' : 'pointer',
+    opacity: takeoffs.length === 0 ? 0.5 : 1
+  }}
+>
+  Undo Last Takeoff
+</button>
+        <button 
           onClick={onSave}
           style={{ width: '100%', padding: '12px', backgroundColor: '#48bb78', color: 'white', fontWeight: 'bold', border: 'none', borderRadius: '4px', cursor: 'pointer', marginBottom: '10px' }}
         >
-          Confirm Takeoff
+Confirm Takeoff
         </button>
         
         <button 
