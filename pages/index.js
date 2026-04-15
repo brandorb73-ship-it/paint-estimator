@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Sidebar from '../components/Sidebar';
 import { exportProfessionalReport } from '../components/ExportButton';
-import { calculatePolygonArea, calculateLinearFeature } from '../lib/calculations';
+import { calculatePolygonArea, calculateLinearFeature, calculateScale, generateFinalQuote } from '../lib/calculations';
 
 const TakeoffCanvas = dynamic(() => import('../components/TakeoffCanvas'), {
   ssr: false,
@@ -14,10 +14,11 @@ export default function App() {
   const [mode, setMode] = useState('interior');
   const [takeoffs, setTakeoffs] = useState([]);
   const [settings, setSettings] = useState({
+    scale: null,         // Millimeters per pixel
     ceilingType: 'standard',
     windowType: 'aluminum',
     exteriorType: 'weatherboard',
-    wallHeight: 2.4, // Standard Melbourne wall/fence height
+    wallHeight: 2.4,     // Standard height for RAV Property Projects
     doors: 0,
     windows: 0,
     cabinets: 0
@@ -25,19 +26,31 @@ export default function App() {
 
   useEffect(() => { setMounted(true); }, []);
 
+  // --- CALIBRATION LOGIC ---
+  const handleCalibration = (pixelDist, physicalMm) => {
+    const newScale = calculateScale(pixelDist, physicalMm);
+    setSettings(prev => ({ ...prev, scale: newScale }));
+    setMode('interior'); // Default back to interior after scaling
+    alert(`Scale set! 1 pixel = ${newScale.toFixed(3)}mm`);
+  };
+
+  // --- SAVE TAKEOFF LOGIC ---
   const handleSave = (points) => {
+    if (!settings.scale) {
+      alert("Please Calibrate the plan scale first!");
+      setMode('calibrate');
+      return;
+    }
+
     if (points.length < 4) return;
     
-    // SCALE: In a real app, this comes from your calibration tool. 
-    // Here we use a mock scale (1 pixel = 10mm)
-    const currentScale = 10; 
     let calcData;
-
     if (mode === 'interior') {
-      const area = calculatePolygonArea(points, currentScale);
-      calcData = { wallArea: area * 2.5, floorArea: area }; // 2.5 is avg wall/floor ratio
+      const area = calculatePolygonArea(points, settings.scale);
+      // Logic for RAV: Wall area estimate based on perimeter/standard ratios if simple polygon
+      calcData = { wallArea: area * 2.5, floorArea: area }; 
     } else {
-      calcData = calculateLinearFeature(points, currentScale, settings.wallHeight, settings.exteriorType);
+      calcData = calculateLinearFeature(points, settings.scale, settings.wallHeight, settings.exteriorType);
     }
 
     const newEntry = {
@@ -47,29 +60,25 @@ export default function App() {
       mode,
       label: `${mode === 'interior' ? 'Room' : settings.exteriorType} ${takeoffs.length + 1}`
     };
+    
     setTakeoffs([...takeoffs, newEntry]);
   };
-// Inside pages/index.js
 
-const handleCalibration = (pixelDist, physicalMm) => {
-  const newScale = calculateScale(pixelDist, physicalMm);
-  setSettings({ ...settings, scale: newScale });
-  setMode('interior'); // Switch back to drawing mode after calibrating
-  alert(`Scale set: 1 pixel = ${newScale.toFixed(3)}mm`);
-};
-
-// Then update the TakeoffCanvas tag in the return:
-<TakeoffCanvas 
-  mode={mode}
-  savedTakeoffs={takeoffs} 
-  onComplete={handleSave} 
-  onCalibrate={handleCalibration} 
-/>
-  const undoLastTakeoff = () => {
-    setTakeoffs(takeoffs.slice(0, -1));
+  // --- UNDO / RESET LOGIC ---
+  const undoTask = () => {
+    if (takeoffs.length > 0) {
+      setTakeoffs(takeoffs.slice(0, -1));
+    } else {
+      // If no history left, reset the scale
+      setSettings(prev => ({ ...prev, scale: null }));
+      alert("Takeoff history empty. Scale has been reset.");
+    }
   };
 
   if (!mounted) return null;
+
+  // Calculate total for the export/sidebar display
+  const totalProjectQuote = generateFinalQuote(takeoffs);
 
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', background: '#f7fafc' }}>
@@ -79,14 +88,15 @@ const handleCalibration = (pixelDist, physicalMm) => {
         mode={mode} 
         setMode={setMode}
         takeoffs={takeoffs}
-        onSave={() => alert("Double-click the drawing to finish an area!")}
-        onUndo={undoLastTakeoff}
-        onExport={() => exportProfessionalReport(takeoffs, 0)} // Total calculated in Excel logic
+        onSave={() => alert("Double-click the drawing to finish a measurement!")}
+        onUndo={undoTask}
+        onExport={() => exportProfessionalReport(takeoffs, totalProjectQuote)}
       />
       <TakeoffCanvas 
         mode={mode}
         savedTakeoffs={takeoffs} 
         onComplete={handleSave} 
+        onCalibrate={handleCalibration}
       />
     </div>
   );
