@@ -88,31 +88,33 @@ const handleFileUpload = (file) => {
     }
   };
 
+// pages/index.js
+
   if (!mounted) return null;
 
-  // Calculate total for the export/sidebar display
+  // Calculate the total project price for the export
   const totalProjectQuote = generateFinalQuote(takeoffs);
 
-return (
-  <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', background: '#f7fafc' }}>
-    <Sidebar 
-      currentSettings={settings} 
-      setSettings={setSettings} 
-      mode={mode} 
-      setMode={setMode}
-      takeoffs={takeoffs}
-      onSave={() => alert("Double-click the drawing to finish a measurement!")}
-      onUndo={undoTask}
-      onExport={() => exportProfessionalReport(takeoffs, totalProjectQuote)}
-      onUpload={handleFileUpload} // Added this
-    />
-    <TakeoffCanvas 
-      mode={mode}
-      savedTakeoffs={takeoffs} 
-      onComplete={handleSave} 
-      onCalibrate={handleCalibration}
-      backgroundImage={planImage} // Added this
-    />
-  </div>
-);
+  return (
+    <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', background: '#f7fafc' }}>
+      <Sidebar 
+        currentSettings={settings} 
+        setSettings={setSettings} 
+        mode={mode} 
+        setMode={setMode}
+        takeoffs={takeoffs}
+        onSave={() => alert("Double-click the drawing to finish a measurement!")}
+        onUndo={undoTask}
+        onExport={() => exportProfessionalReport(takeoffs, totalProjectQuote)}
+        onUpload={handleFileUpload} 
+      />
+      <TakeoffCanvas 
+        mode={mode}
+        savedTakeoffs={takeoffs} 
+        onComplete={handleSave} 
+        onCalibrate={handleCalibration}
+        backgroundImage={planImage}
+      />
+    </div>
+  );
 }
