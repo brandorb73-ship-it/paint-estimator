@@ -49,7 +49,22 @@ export default function App() {
     };
     setTakeoffs([...takeoffs, newEntry]);
   };
+// Inside pages/index.js
 
+const handleCalibration = (pixelDist, physicalMm) => {
+  const newScale = calculateScale(pixelDist, physicalMm);
+  setSettings({ ...settings, scale: newScale });
+  setMode('interior'); // Switch back to drawing mode after calibrating
+  alert(`Scale set: 1 pixel = ${newScale.toFixed(3)}mm`);
+};
+
+// Then update the TakeoffCanvas tag in the return:
+<TakeoffCanvas 
+  mode={mode}
+  savedTakeoffs={takeoffs} 
+  onComplete={handleSave} 
+  onCalibrate={handleCalibration} 
+/>
   const undoLastTakeoff = () => {
     setTakeoffs(takeoffs.slice(0, -1));
   };
