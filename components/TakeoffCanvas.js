@@ -1,11 +1,22 @@
-// components/TakeoffCanvas.js
-import React, { useState } from 'react';
-import { Stage, Layer, Line, Rect, Circle } from 'react-konva';
+import React, { useState, useEffect } from 'react';
+import { Stage, Layer, Line, Rect, Circle, Image as KonvaImage } from 'react-konva';
 
-const TakeoffCanvas = ({ mode, savedTakeoffs, onComplete, onCalibrate }) => {
+const TakeoffCanvas = ({ mode, savedTakeoffs, onComplete, onCalibrate, backgroundImage }) => {
   const [points, setPoints] = useState([]);
   const [calibPoints, setCalibPoints] = useState([]);
-const [imageObj] = useImage(backgroundImage);
+  const [imageObj, setImageObj] = useState(null);
+
+  // Handle Plan Image Loading
+  useEffect(() => {
+    if (backgroundImage) {
+      const img = new window.Image();
+      img.src = backgroundImage;
+      img.onload = () => {
+        setImageObj(img);
+      };
+    }
+  }, [backgroundImage]);
+
   const handleMouseDown = (e) => {
     const pos = e.target.getStage().getPointerPosition();
 
@@ -14,18 +25,16 @@ const [imageObj] = useImage(backgroundImage);
       const newCalib = [...calibPoints, pos.x, pos.y];
       setCalibPoints(newCalib);
 
-      // Once we have two points (x1, y1, x2, y2)
       if (newCalib.length === 4) {
         const physicalLength = window.prompt("Enter known length in mm (e.g., 900 for a door):");
         if (physicalLength) {
-          // Calculate pixel distance
           const dist = Math.sqrt(
             Math.pow(newCalib[2] - newCalib[0], 2) + 
             Math.pow(newCalib[3] - newCalib[1], 2)
           );
           onCalibrate(dist, parseFloat(physicalLength));
         }
-        setCalibPoints([]); // Reset for next time
+        setCalibPoints([]); 
       }
       return;
     }
@@ -34,46 +43,61 @@ const [imageObj] = useImage(backgroundImage);
     setPoints([...points, pos.x, pos.y]);
   };
 
-  const handleDoubleClick = () => {
+  // Add the listener for finishing a shape
+  const handleDblClick = () => {
     if (points.length < 4) return;
     onComplete(points);
     setPoints([]);
   };
 
   return (
-    <div style={{ flexGrow: 1, backgroundColor: '#cbd5e0' }}>
-      <Stage width={window.innerWidth - 300} height={window.innerHeight}>
+    <div style={{ flexGrow: 1, backgroundColor: '#2d3748' }}>
+      <Stage 
+        width={window.innerWidth - 300} 
+        height={window.innerHeight}
+        onMouseDown={handleMouseDown}
+        onDblClick={handleDblClick}
+      >
         <Layer>
-          <Rect width={2000} height={2000} fill="white" />
+          {/* Default Background */}
+          <Rect width={5000} height={5000} fill="#f0f0f0" />
+          
+          {/* THE LOADED WORKING PLAN */}
           {imageObj && (
-  <KonvaImage
-    image={imageObj}
-    x={0}
-    y={0}
-    width={imageObj.width}
-    height={imageObj.height}
-  />
-)}
+            <KonvaImage
+              image={imageObj}
+              x={0}
+              y={0}
+              width={imageObj.width}
+              height={imageObj.height}
+            />
+          )}
+
           {/* Visualizing Calibration Points */}
           {calibPoints.map((p, i) => i % 2 === 0 && (
             <Circle key={i} x={calibPoints[i]} y={calibPoints[i+1]} radius={5} fill="red" />
           ))}
           <Line points={calibPoints} stroke="red" strokeWidth={2} />
 
-          {/* Existing Takeoffs */}
+          {/* Existing Takeoffs (Finished Rooms/Walls) */}
           {savedTakeoffs.map((t, i) => (
             <Line
               key={i}
               points={t.points}
-              fill={t.mode === 'interior' ? "rgba(72, 187, 120, 0.3)" : "transparent"}
+              fill={t.mode === 'interior' ? "rgba(72, 187, 120, 0.3)" : "rgba(229, 62, 62, 0.1)"}
               stroke={t.mode === 'interior' ? "#2f855a" : "#e53e3e"}
               strokeWidth={2}
               closed={t.mode === 'interior'}
             />
           ))}
 
-          {/* Active Drawing */}
-          <Line points={points} stroke="#3182ce" strokeWidth={2} closed={mode === 'interior'} />
+          {/* Active Drawing (What you are clicking right now) */}
+          <Line 
+            points={points} 
+            stroke={mode === 'interior' ? "#3182ce" : "#e53e3e"} 
+            strokeWidth={3} 
+            closed={mode === 'interior'} 
+          />
         </Layer>
       </Stage>
     </div>
