@@ -1,7 +1,6 @@
-// components/Sidebar.js
 import React from 'react';
 
-const Sidebar = ({ currentSettings, setSettings, mode, setMode, onSave, onExport, takeoffs }) => {
+const Sidebar = ({ currentSettings, setSettings, mode, setMode, onSave, onUndo, onExport, takeoffs }) => {
   
   // Helper to update specific counts like Doors or Cabinets
   const updateCount = (key, value) => {
@@ -11,29 +10,31 @@ const Sidebar = ({ currentSettings, setSettings, mode, setMode, onSave, onExport
   return (
     <div style={{ width: '300px', backgroundColor: '#1a202c', color: 'white', padding: '20px', height: '100vh', overflowY: 'auto', borderRight: '2px solid #2d3748' }}>
       <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold', borderBottom: '1px solid #4a5568', paddingBottom: '10px', color: '#63b3ed' }}>RAV Property Projects</h2>
-      // Inside Sidebar.js return statement
-<div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#2d3748', borderRadius: '8px', border: '1px solid #4a5568' }}>
-  <p style={{ fontSize: '0.75rem', color: '#a0aec0', marginBottom: '8px' }}>
-    Scale: {currentSettings.scale ? `${currentSettings.scale.toFixed(3)} mm/px` : '⚠️ Not Calibrated'}
-  </p>
-  <button 
-    onClick={() => setMode('calibrate')}
-    style={{ 
-      width: '100%', 
-      padding: '10px', 
-      backgroundColor: mode === 'calibrate' ? '#ed8936' : '#4a5568', 
-      color: 'white', 
-      fontWeight: 'bold',
-      border: 'none', 
-      borderRadius: '4px', 
-      cursor: 'pointer',
-      transition: '0.2s'
-    }}
-  >
-    {mode === 'calibrate' ? '📏 Click 2 Points on Plan' : '📏 Calibrate Scale'}
-  </button>
-</div>
-      {/* 1. MODE TOGGLE (Interior vs Exterior) */}
+      
+      {/* CALIBRATION SECTION */}
+      <div style={{ marginTop: '20px', marginBottom: '20px', padding: '15px', backgroundColor: '#2d3748', borderRadius: '8px', border: '1px solid #4a5568' }}>
+        <p style={{ fontSize: '0.75rem', color: '#a0aec0', marginBottom: '8px' }}>
+          Scale: {currentSettings.scale ? `${currentSettings.scale.toFixed(3)} mm/px` : '⚠️ Not Calibrated'}
+        </p>
+        <button 
+          onClick={() => setMode('calibrate')}
+          style={{ 
+            width: '100%', 
+            padding: '10px', 
+            backgroundColor: mode === 'calibrate' ? '#ed8936' : '#4a5568', 
+            color: 'white', 
+            fontWeight: 'bold',
+            border: 'none', 
+            borderRadius: '4px', 
+            cursor: 'pointer',
+            transition: '0.2s'
+          }}
+        >
+          {mode === 'calibrate' ? '📏 Click 2 Points' : '📏 Calibrate Scale'}
+        </button>
+      </div>
+
+      {/* 1. MODE TOGGLE */}
       <div style={{ marginTop: '20px', display: 'flex', gap: '5px' }}>
         <button 
           onClick={() => setMode('interior')}
@@ -87,46 +88,59 @@ const Sidebar = ({ currentSettings, setSettings, mode, setMode, onSave, onExport
 
       {/* 3. EXTERIOR SETTINGS */}
       {mode === 'exterior' && (
-        <div style={{ marginTop: '20px' }}>
-          <label style={{ fontSize: '0.8rem', color: '#a0aec0' }}>Exterior Feature</label>
-          <select 
-            value={currentSettings.exteriorType} 
-            onChange={(e) => setSettings({...currentSettings, exteriorType: e.target.value})}
-            style={{ width: '100%', padding: '8px', marginTop: '5px', backgroundColor: '#2d3748', color: 'white', border: '1px solid #4a5568' }}
-          >
-            <option value="weatherboard">Weatherboard Wall</option>
-            <option value="eaves">Eaves / Soffits</option>
-            <option value="fascia">Fascia & Gutter</option>
-            <option value="render">Render / Brick</option>
-            <option value="picket_fence">Picket Fence</option>
-          </select>
-        </div>
+        <>
+          <div style={{ marginTop: '20px' }}>
+            <label style={{ fontSize: '0.8rem', color: '#a0aec0' }}>Exterior Feature</label>
+            <select 
+              value={currentSettings.exteriorType} 
+              onChange={(e) => setSettings({...currentSettings, exteriorType: e.target.value})}
+              style={{ width: '100%', padding: '8px', marginTop: '5px', backgroundColor: '#2d3748', color: 'white', border: '1px solid #4a5568' }}
+            >
+              <option value="weatherboard">Weatherboard Wall</option>
+              <option value="eaves">Eaves / Soffits</option>
+              <option value="fascia">Fascia & Gutter</option>
+              <option value="render">Render / Brick</option>
+              <option value="picket_fence">Picket Fence</option>
+            </select>
+          </div>
+
+          <div style={{ marginTop: '15px' }}>
+            <label style={{ fontSize: '0.8rem', color: '#a0aec0' }}>Surface Height (m)</label>
+            <input 
+              type="number"
+              step="0.1"
+              value={currentSettings.wallHeight || 2.4}
+              onChange={(e) => setSettings({...currentSettings, wallHeight: parseFloat(e.target.value)})}
+              style={{ width: '100%', padding: '8px', marginTop: '5px', backgroundColor: '#2d3748', color: 'white', border: '1px solid #4a5568' }}
+            />
+          </div>
+        </>
       )}
 
       {/* 4. ACTIONS */}
       <div style={{ marginTop: '30px', borderTop: '1px solid #4a5568', paddingTop: '20px' }}>
         <button 
-  onClick={onUndo}
-  disabled={takeoffs.length === 0}
-  style={{ 
-    width: '100%', 
-    padding: '10px', 
-    backgroundColor: '#e53e3e', 
-    color: 'white', 
-    marginBottom: '10px', 
-    borderRadius: '4px', 
-    border: 'none', 
-    cursor: takeoffs.length === 0 ? 'not-allowed' : 'pointer',
-    opacity: takeoffs.length === 0 ? 0.5 : 1
-  }}
->
-  Undo Last Takeoff
-</button>
+          onClick={onUndo}
+          style={{ 
+            width: '100%', 
+            padding: '10px', 
+            backgroundColor: '#e53e3e', 
+            color: 'white', 
+            marginBottom: '10px', 
+            borderRadius: '4px', 
+            border: 'none', 
+            cursor: 'pointer',
+            fontWeight: 'bold'
+          }}
+        >
+          {takeoffs.length > 0 ? 'Undo Last Takeoff' : 'Reset Scale'}
+        </button>
+
         <button 
           onClick={onSave}
           style={{ width: '100%', padding: '12px', backgroundColor: '#48bb78', color: 'white', fontWeight: 'bold', border: 'none', borderRadius: '4px', cursor: 'pointer', marginBottom: '10px' }}
         >
-Confirm Takeoff
+          Confirm Takeoff
         </button>
         
         <button 
@@ -143,7 +157,7 @@ Confirm Takeoff
         <div style={{ maxHeight: '200px', overflowY: 'auto', marginTop: '10px' }}>
           {takeoffs.map((t, i) => (
             <div key={i} style={{ fontSize: '0.75rem', padding: '8px', backgroundColor: '#2d3748', marginBottom: '5px', borderRadius: '4px' }}>
-              <strong>{t.label}</strong>: {t.wallArea?.toFixed(1) || t.linearMeters?.toFixed(1)}m²
+              <strong>{t.label}</strong>: {(t.wallArea || t.area || 0).toFixed(1)}m²
             </div>
           ))}
         </div>
