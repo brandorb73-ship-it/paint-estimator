@@ -5,7 +5,7 @@ import { Stage, Layer, Line, Rect, Circle } from 'react-konva';
 const TakeoffCanvas = ({ mode, savedTakeoffs, onComplete, onCalibrate }) => {
   const [points, setPoints] = useState([]);
   const [calibPoints, setCalibPoints] = useState([]);
-
+const [imageObj] = useImage(backgroundImage);
   const handleMouseDown = (e) => {
     const pos = e.target.getStage().getPointerPosition();
 
@@ -45,7 +45,15 @@ const TakeoffCanvas = ({ mode, savedTakeoffs, onComplete, onCalibrate }) => {
       <Stage width={window.innerWidth - 300} height={window.innerHeight}>
         <Layer>
           <Rect width={2000} height={2000} fill="white" />
-          
+          {imageObj && (
+  <KonvaImage
+    image={imageObj}
+    x={0}
+    y={0}
+    width={imageObj.width}
+    height={imageObj.height}
+  />
+)}
           {/* Visualizing Calibration Points */}
           {calibPoints.map((p, i) => i % 2 === 0 && (
             <Circle key={i} x={calibPoints[i]} y={calibPoints[i+1]} radius={5} fill="red" />
