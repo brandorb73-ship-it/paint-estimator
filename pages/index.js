@@ -1,62 +1,53 @@
 import React, { useState } from 'react';
-import dynamic from 'next/dynamic'; // 1. Add this
+import dynamic from 'next/dynamic';
 import Sidebar from '../components/Sidebar';
 import { MELBOURNE_RATES } from '../lib/rates';
+import { exportProfessionalReport } from '../components/ExportButton';
+
+// FIX: This must be defined OUTSIDE the component function
+const TakeoffCanvas = dynamic(() => import('../components/TakeoffCanvas'), {
+  ssr: false,
+  loading: () => <div style={{ height: '100vh', background: '#f0f0f0' }}>Loading Plan...</div>
+});
 
 export default function App() {
+  const [mode, setMode] = useState('interior'); // 'interior' or 'exterior'
   const [settings, setSettings] = useState({
     ceilingType: 'standard',
     windowType: 'aluminum',
-    addSkirting: false,
-    addCornice: false
+    doors: 0,
+    windows: 0,
+    cabinets: 0
   });
 
   const [takeoffs, setTakeoffs] = useState([]);
-  const [currentPolygon, setCurrentPolygon] = useState(null);
 
-// Inside pages/index.js
-
-const handleCompletePolygon = (points) => {
-  // 1. Calculate Floor Area using Shoelace
-  const floorArea = calculatePolygonArea(points, currentScale); 
-  
-  // 2. Calculate Perimeter (for Wall Surface Area)
-  let perimeter = 0;
-  for (let i = 0; i < points.length - 2; i += 2) {
-    const dx = points[i+2] - points[i];
-    const dy = points[i+3] - points[i+1];
-    perimeter += Math.sqrt(dx*dx + dy*dy) * currentScale;
-  }
-
-  // 3. Apply Melbourne Quote Logic
-  const h = settings.ceilingType === 'victorian' ? 3.3 : (settings.ceilingType === 'high' ? 2.7 : 2.4);
-  const wallArea = perimeter * h;
-  
-  // Complexity factor for Timber/Preparation
-  const complexity = settings.windowType === 'timber' ? 1.25 : 1.0;
-  
-  const newTakeoff = {
-    label: `Room ${takeoffs.length + 1}`,
-    points: points,
-    floorArea: floorArea,
-    wallArea: wallArea,
-    totalEstimate: (wallArea * 35 * complexity) // $35/m2 base Melbourne rate
+  const handleCompleteTakeoff = (points, calculatedData) => {
+    const newEntry = {
+      ...settings,
+      ...calculatedData,
+      points,
+      type: mode,
+      label: `${mode === 'interior' ? 'Room' : 'Exterior'} ${takeoffs.length + 1}`,
+      subTotal: 0 // This will be calculated by your lib/calculations engine
+    };
+    setTakeoffs([...takeoffs, newEntry]);
   };
 
-  setTakeoffs([...takeoffs, newTakeoff]);
-};
-
   return (
-    <div style={{ display: 'flex' }}>
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       <Sidebar 
-        currentSettings={settings} 
+        settings={settings} 
         setSettings={setSettings} 
+        mode={mode} 
+        setMode={setMode}
         takeoffs={takeoffs}
-        onSave={() => alert('Takeoff data captured for Excel export!')} 
+        onExport={() => exportProfessionalReport(takeoffs, 5000)} // Placeholder total
       />
       <TakeoffCanvas 
-        savedPolygons={takeoffs} 
-        onCompletePolygon={handleCompletePolygon} 
+        mode={mode}
+        savedTakeoffs={takeoffs} 
+        onComplete={handleCompleteTakeoff} 
       />
     </div>
   );
