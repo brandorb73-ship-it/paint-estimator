@@ -25,7 +25,20 @@ export default function App() {
   });
 
   useEffect(() => { setMounted(true); }, []);
+// Add this state
+const [planImage, setPlanImage] = useState(null);
 
+// Add this function
+const handleFileUpload = (file) => {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => setPlanImage(e.target.result);
+  reader.readAsDataURL(file);
+};
+
+// Pass these to Sidebar and TakeoffCanvas
+<Sidebar ... onUpload={handleFileUpload} />
+<TakeoffCanvas ... backgroundImage={planImage} />
   // --- CALIBRATION LOGIC ---
   const handleCalibration = (pixelDist, physicalMm) => {
     const newScale = calculateScale(pixelDist, physicalMm);
