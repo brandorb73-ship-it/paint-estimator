@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic'; // 1. Add this
 import Sidebar from '../components/Sidebar';
-import TakeoffCanvas from '../components/TakeoffCanvas';
 import { MELBOURNE_RATES } from '../lib/rates';
 
 export default function App() {
