@@ -75,9 +75,16 @@ const TakeoffCanvas = ({ mode, savedTakeoffs, onComplete, onCalibrate, backgroun
   )}
 
   {/* 3. Your Drawings (must be AFTER the image to stay on top) */}
-  {savedTakeoffs.map((t, i) => (
-     <Line key={i} points={t.points} ... />
-  ))}
+ {savedTakeoffs.map((t, i) => (
+  <Line
+    key={i}
+    points={t.points}
+    fill={t.mode === 'interior' ? "rgba(72, 187, 120, 0.3)" : "rgba(229, 62, 62, 0.1)"}
+    stroke={t.mode === 'interior' ? "#2f855a" : "#e53e3e"}
+    strokeWidth={2}
+    closed={t.mode === 'interior'}
+  />
+))}
 </Layer>
 
           {/* Visualizing Calibration Points */}
