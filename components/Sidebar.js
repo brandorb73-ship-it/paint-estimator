@@ -11,7 +11,28 @@ const Sidebar = ({ currentSettings, setSettings, mode, setMode, onSave, onExport
   return (
     <div style={{ width: '300px', backgroundColor: '#1a202c', color: 'white', padding: '20px', height: '100vh', overflowY: 'auto', borderRight: '2px solid #2d3748' }}>
       <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold', borderBottom: '1px solid #4a5568', paddingBottom: '10px', color: '#63b3ed' }}>RAV Property Projects</h2>
-      
+      // Inside Sidebar.js return statement
+<div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#2d3748', borderRadius: '8px', border: '1px solid #4a5568' }}>
+  <p style={{ fontSize: '0.75rem', color: '#a0aec0', marginBottom: '8px' }}>
+    Scale: {currentSettings.scale ? `${currentSettings.scale.toFixed(3)} mm/px` : '⚠️ Not Calibrated'}
+  </p>
+  <button 
+    onClick={() => setMode('calibrate')}
+    style={{ 
+      width: '100%', 
+      padding: '10px', 
+      backgroundColor: mode === 'calibrate' ? '#ed8936' : '#4a5568', 
+      color: 'white', 
+      fontWeight: 'bold',
+      border: 'none', 
+      borderRadius: '4px', 
+      cursor: 'pointer',
+      transition: '0.2s'
+    }}
+  >
+    {mode === 'calibrate' ? '📏 Click 2 Points on Plan' : '📏 Calibrate Scale'}
+  </button>
+</div>
       {/* 1. MODE TOGGLE (Interior vs Exterior) */}
       <div style={{ marginTop: '20px', display: 'flex', gap: '5px' }}>
         <button 
