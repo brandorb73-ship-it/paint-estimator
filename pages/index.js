@@ -36,13 +36,22 @@ export default function App() {
   }, []);
 
   // --- FILE UPLOAD LOGIC ---
-  const handleFileUpload = (file) => {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => setPlanImage(e.target.result);
-    reader.readAsDataURL(file);
-  };
+const handleFileUpload = (file) => {
+  if (!file) return;
 
+  // Temporary check: PDF rendering requires extra libraries. Let's stick to Images for now.
+  if (file.type === "application/pdf") {
+    alert("PDF support coming soon! Please use a PNG or JPG screenshot of the plan for now.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    console.log("File loaded successfully"); // Debugging
+    setPlanImage(e.target.result);
+  };
+  reader.readAsDataURL(file);
+};
   // --- CALIBRATION LOGIC ---
   const handleCalibration = (pixelDist, physicalMm) => {
     const newScale = calculateScale(pixelDist, physicalMm);
