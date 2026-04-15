@@ -2,7 +2,12 @@ import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Sidebar from '../components/Sidebar';
 import { exportProfessionalReport } from '../components/ExportButton';
-import { calculatePolygonArea, calculateLinearFeature, calculateScale, generateFinalQuote } from '../lib/calculations';
+import { 
+  calculatePolygonArea, 
+  calculateLinearFeature, 
+  calculateScale, 
+  generateFinalQuote 
+} from '../lib/calculations';
 
 const TakeoffCanvas = dynamic(() => import('../components/TakeoffCanvas'), {
   ssr: false,
@@ -13,6 +18,8 @@ export default function App() {
   const [mounted, setMounted] = useState(false);
   const [mode, setMode] = useState('interior');
   const [takeoffs, setTakeoffs] = useState([]);
+  const [planImage, setPlanImage] = useState(null);
+  
   const [settings, setSettings] = useState({
     scale: null,         // Millimeters per pixel
     ceilingType: 'standard',
@@ -24,26 +31,23 @@ export default function App() {
     cabinets: 0
   });
 
-  useEffect(() => { setMounted(true); }, []);
-// Add this state
-const [planImage, setPlanImage] = useState(null);
+  useEffect(() => { 
+    setMounted(true); 
+  }, []);
 
-// Add this function
-const handleFileUpload = (file) => {
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => setPlanImage(e.target.result);
-  reader.readAsDataURL(file);
-};
+  // --- FILE UPLOAD LOGIC ---
+  const handleFileUpload = (file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => setPlanImage(e.target.result);
+    reader.readAsDataURL(file);
+  };
 
-// Pass these to Sidebar and TakeoffCanvas
-<Sidebar ... onUpload={handleFileUpload} />
-<TakeoffCanvas ... backgroundImage={planImage} />
   // --- CALIBRATION LOGIC ---
   const handleCalibration = (pixelDist, physicalMm) => {
     const newScale = calculateScale(pixelDist, physicalMm);
     setSettings(prev => ({ ...prev, scale: newScale }));
-    setMode('interior'); // Default back to interior after scaling
+    setMode('interior'); 
     alert(`Scale set! 1 pixel = ${newScale.toFixed(3)}mm`);
   };
 
@@ -60,7 +64,7 @@ const handleFileUpload = (file) => {
     let calcData;
     if (mode === 'interior') {
       const area = calculatePolygonArea(points, settings.scale);
-      // Logic for RAV: Wall area estimate based on perimeter/standard ratios if simple polygon
+      // Logic for RAV: Wall area estimate based on perimeter/standard ratios
       calcData = { wallArea: area * 2.5, floorArea: area }; 
     } else {
       calcData = calculateLinearFeature(points, settings.scale, settings.wallHeight, settings.exteriorType);
@@ -82,13 +86,10 @@ const handleFileUpload = (file) => {
     if (takeoffs.length > 0) {
       setTakeoffs(takeoffs.slice(0, -1));
     } else {
-      // If no history left, reset the scale
       setSettings(prev => ({ ...prev, scale: null }));
       alert("Takeoff history empty. Scale has been reset.");
     }
   };
-
-// pages/index.js
 
   if (!mounted) return null;
 
