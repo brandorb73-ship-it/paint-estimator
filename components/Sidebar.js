@@ -10,7 +10,32 @@ const Sidebar = ({ currentSettings, setSettings, mode, setMode, onSave, onUndo, 
   return (
     <div style={{ width: '300px', backgroundColor: '#1a202c', color: 'white', padding: '20px', height: '100vh', overflowY: 'auto', borderRight: '2px solid #2d3748' }}>
       <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold', borderBottom: '1px solid #4a5568', paddingBottom: '10px', color: '#63b3ed' }}>RAV Property Projects</h2>
-      
+      // Add this inside the return, right above the Calibration Section
+<div style={{ marginBottom: '20px' }}>
+  <label 
+    htmlFor="plan-upload" 
+    style={{ 
+      display: 'block', 
+      width: '100%', 
+      padding: '12px', 
+      backgroundColor: '#3182ce', 
+      color: 'white', 
+      textAlign: 'center', 
+      borderRadius: '4px', 
+      cursor: 'pointer', 
+      fontWeight: 'bold' 
+    }}
+  >
+    📁 Load Working Plan
+  </label>
+  <input 
+    id="plan-upload" 
+    type="file" 
+    accept="image/*,application/pdf" 
+    onChange={(e) => onUpload(e.target.files[0])} 
+    style={{ display: 'none' }} 
+  />
+</div>
       {/* CALIBRATION SECTION */}
       <div style={{ marginTop: '20px', marginBottom: '20px', padding: '15px', backgroundColor: '#2d3748', borderRadius: '8px', border: '1px solid #4a5568' }}>
         <p style={{ fontSize: '0.75rem', color: '#a0aec0', marginBottom: '8px' }}>
