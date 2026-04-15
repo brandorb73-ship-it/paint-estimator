@@ -1,58 +1,76 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Sidebar from '../components/Sidebar';
-import { MELBOURNE_RATES } from '../lib/rates';
 import { exportProfessionalReport } from '../components/ExportButton';
+import { calculatePolygonArea, calculateLinearFeature } from '../lib/calculations';
 
-// FIX: This must be defined OUTSIDE the component function
 const TakeoffCanvas = dynamic(() => import('../components/TakeoffCanvas'), {
   ssr: false,
-  loading: () => <div style={{ height: '100vh', background: '#f0f0f0' }}>Loading Plan...</div>
+  loading: () => <div style={{ height: '100vh', background: '#1a202c' }} />
 });
 
-// pages/index.js
-
 export default function App() {
-  // 1. Add the mode state here
-  const [mode, setMode] = useState('interior'); 
-  
+  const [mounted, setMounted] = useState(false);
+  const [mode, setMode] = useState('interior');
+  const [takeoffs, setTakeoffs] = useState([]);
   const [settings, setSettings] = useState({
     ceilingType: 'standard',
     windowType: 'aluminum',
-    exteriorType: 'weatherboard', // Default for exterior
-    wallHeight: 2.4,              // Used for weatherboards/fences
+    exteriorType: 'weatherboard',
+    wallHeight: 2.4, // Standard Melbourne wall/fence height
     doors: 0,
-    windows: 0
+    windows: 0,
+    cabinets: 0
   });
 
-  const [takeoffs, setTakeoffs] = useState([]);
+  useEffect(() => { setMounted(true); }, []);
 
-  // 2. This function now handles both types
   const handleSave = (points) => {
-    let data;
+    if (points.length < 4) return;
+    
+    // SCALE: In a real app, this comes from your calibration tool. 
+    // Here we use a mock scale (1 pixel = 10mm)
+    const currentScale = 10; 
+    let calcData;
+
     if (mode === 'interior') {
       const area = calculatePolygonArea(points, currentScale);
-      data = { floorArea: area, wallArea: area * 2.5 }; // Simplified wall calc
+      calcData = { wallArea: area * 2.5, floorArea: area }; // 2.5 is avg wall/floor ratio
     } else {
-      data = calculateLinearFeature(points, currentScale, settings.wallHeight, settings.exteriorType);
+      calcData = calculateLinearFeature(points, currentScale, settings.wallHeight, settings.exteriorType);
     }
 
-    setTakeoffs([...takeoffs, { ...settings, points, mode, ...data }]);
+    const newEntry = {
+      ...settings,
+      ...calcData,
+      points,
+      mode,
+      label: `${mode === 'interior' ? 'Room' : settings.exteriorType} ${takeoffs.length + 1}`
+    };
+    setTakeoffs([...takeoffs, newEntry]);
   };
 
+  const undoLastTakeoff = () => {
+    setTakeoffs(takeoffs.slice(0, -1));
+  };
+
+  if (!mounted) return null;
+
   return (
-    <div style={{ display: 'flex' }}>
-      {/* Pass mode and setMode to the Sidebar */}
+    <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', background: '#f7fafc' }}>
       <Sidebar 
         currentSettings={settings} 
         setSettings={setSettings} 
         mode={mode} 
-        setMode={setMode} 
+        setMode={setMode}
         takeoffs={takeoffs}
-        onSave={handleSave}
+        onSave={() => alert("Double-click the drawing to finish an area!")}
+        onUndo={undoLastTakeoff}
+        onExport={() => exportProfessionalReport(takeoffs, 0)} // Total calculated in Excel logic
       />
       <TakeoffCanvas 
-        mode={mode} // Pass mode to Canvas so it knows to close the polygon or not
+        mode={mode}
+        savedTakeoffs={takeoffs} 
         onComplete={handleSave} 
       />
     </div>
