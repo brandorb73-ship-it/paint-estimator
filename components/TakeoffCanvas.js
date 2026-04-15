@@ -58,20 +58,27 @@ const TakeoffCanvas = ({ mode, savedTakeoffs, onComplete, onCalibrate, backgroun
         onMouseDown={handleMouseDown}
         onDblClick={handleDblClick}
       >
-        <Layer>
-          {/* Default Background */}
-          <Rect width={5000} height={5000} fill="#f0f0f0" />
-          
-          {/* THE LOADED WORKING PLAN */}
-          {imageObj && (
-            <KonvaImage
-              image={imageObj}
-              x={0}
-              y={0}
-              width={imageObj.width}
-              height={imageObj.height}
-            />
-          )}
+      <Layer>
+  {/* 1. Gray background if no image exists */}
+  {!imageObj && <Rect width={5000} height={5000} fill="#2d3748" />}
+
+  {/* 2. The Plan Image */}
+  {imageObj && (
+    <KonvaImage
+      image={imageObj}
+      x={0}
+      y={0}
+      // Ensure the canvas is big enough for the plan
+      width={imageObj.width}
+      height={imageObj.height}
+    />
+  )}
+
+  {/* 3. Your Drawings (must be AFTER the image to stay on top) */}
+  {savedTakeoffs.map((t, i) => (
+     <Line key={i} points={t.points} ... />
+  ))}
+</Layer>
 
           {/* Visualizing Calibration Points */}
           {calibPoints.map((p, i) => i % 2 === 0 && (
