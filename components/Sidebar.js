@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Sidebar = ({ currentSettings, setSettings, mode, setMode, onSave, onUndo, onExport, takeoffs }) => {
+const Sidebar = ({ currentSettings, setSettings, mode, setMode, takeoffs, onSave, onUndo, onExport, onUpload }) => {
   
   // Helper to update specific counts like Doors or Cabinets
   const updateCount = (key, value) => {
