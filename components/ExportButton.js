@@ -1,47 +1,45 @@
-// components/ExportButton.js
 import * as XLSX from 'xlsx';
 
-export const exportProfessionalReport = (takeoffs, totalQuote) => {
-  // 1. Prepare the Data Rows
-  const rows = takeoffs.map(item => ({
-    "Room/Area": item.label,
-    "Surface Type": item.type === 'interior' ? `Interior (${item.ceilingType})` : `Exterior (${item.exteriorType})`,
-    "Wall Area (m2)": item.wallArea ? item.wallArea.toFixed(2) : "-",
-    "Floor Area (m2)": item.floorArea ? item.floorArea.toFixed(2) : "-",
-    "Doors": item.doors || 0,
-    "Windows": item.windows || 0,
-    "Window Type": item.windowType || "N/A",
-    "Cabinets": item.cabinets || 0,
-    "Est. Cost (AUD)": `$${(item.subTotal || 0).toLocaleString()}`
-  }));
+export const exportProfessionalReport = (takeoffs, totalEstimate) => {
+  if (takeoffs.length === 0) {
+    alert("No takeoff data to export!");
+    return;
+  }
 
-  // 2. Create Worksheet
-  const worksheet = XLSX.utils.json_to_sheet(rows);
+  // 1. Prepare the Forensic Rows
+  const reportData = takeoffs.map((t) => {
+    const paintCoverage = 12; // m2 per liter
+    const coats = 2;
+    const paintNeeded = ((t.wallArea / paintCoverage) * coats).toFixed(2);
 
-  // 3. Add a Summary Row at the bottom
-  XLSX.utils.sheet_add_aoa(worksheet, [
-    [], // Empty row
-    ["TOTAL PROJECT ESTIMATE", "", "", "", "", "", "", "", `$${totalQuote.toLocaleString()}`]
-  ], { origin: -1 });
+    return {
+      "Room/Area": t.label,
+      "Type": t.mode === 'interior' ? "Interior" : t.exteriorType,
+      "Perimeter (m)": t.perimeter || "N/A",
+      "Wall Height (m)": t.heightUsed || t.wallHeight,
+      "Gross Wall Area (m2)": t.grossArea || (t.wallArea).toFixed(2),
+      "Deductions (m2)": t.deductions || 0,
+      "Net Paint Area (m2)": t.wallArea.toFixed(2),
+      "Floor/Ceiling Area (m2)": t.floorArea?.toFixed(2) || "0.00",
+      "Doors": t.doors || 0,
+      "Cabinets/Windows": t.cabinets || 0,
+      "Est. Paint Needed (L)": `${paintNeeded}L`,
+    };
+  });
 
-  // 4. Style Columns (Widths)
-  const wscols = [
-    { wch: 20 }, // Room
-    { wch: 20 }, // Surface
-    { wch: 15 }, // Wall
-    { wch: 15 }, // Floor
-    { wch: 8 },  // Doors
-    { wch: 8 },  // Windows
-    { wch: 15 }, // Window Type
-    { wch: 10 }, // Cabinets
-    { wch: 15 }  // Cost
-  ];
-  worksheet['!cols'] = wscols;
+  // 2. Add a Summary Row at the bottom
+  reportData.push({}); // Empty spacer row
+  reportData.push({
+    "Room/Area": "TOTAL PROJECT ESTIMATE",
+    "Est. Paint Needed (L)": `${takeoffs.reduce((sum, t) => sum + (t.wallArea / 6), 0).toFixed(2)}L`, // Approx total
+    "Net Paint Area (m2)": `Total: ${totalEstimate.toLocaleString('en-AU', { style: 'currency', currency: 'AUD' })}`
+  });
 
-  // 5. Generate Workbook and Download
+  // 3. Generate Excel File
+  const worksheet = XLSX.utils.json_to_sheet(reportData);
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Quote Summary");
-  
-  const fileName = `Painting_Quote_${new Date().toISOString().slice(0,10)}.xlsx`;
-  XLSX.writeFile(workbook, fileName);
+  XLSX.utils.book_append_sheet(workbook, worksheet, "RAV_Takeoff_Report");
+
+  // 4. Download
+  XLSX.writeFile(workbook, `RAV_Project_Takeoff_${new Date().toLocaleDateString()}.xlsx`);
 };
