@@ -61,45 +61,39 @@ const handleFileUpload = (file) => {
   };
 
   // --- SAVE TAKEOFF LOGIC ---
-  const handleSave = (points) => {
-  if (!settings.scale) {
-    alert("Please Calibrate first!");
-    return;
-  }
+const handleSave = (points) => {
+  if (!settings.scale) return alert("Calibrate first!");
 
-  // 1. Calculate Floor Area (for Ceilings)
-  const floorArea = calculatePolygonArea(points, settings.scale);
-
-  // 2. Calculate Perimeter (for Walls)
+  // 1. Perimeter Calculation
   let perimeterPixels = 0;
   for (let i = 0; i < points.length; i += 2) {
-    const x1 = points[i];
-    const y1 = points[i + 1];
-    const x2 = points[(i + 2) % points.length];
-    const y2 = points[(i + 3) % points.length];
-    perimeterPixels += Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    const x1 = points[i], y1 = points[i+1];
+    const x2 = points[(i+2)%points.length], y2 = points[(i+3)%points.length];
+    perimeterPixels += Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
   }
   const perimeterMeters = (perimeterPixels * settings.scale) / 1000;
 
-  // 3. Calculate Wall Area (minus deductions for doors/windows)
-  const rawWallArea = perimeterMeters * settings.wallHeight;
-  const deductions = (settings.doors * 1.6) + (settings.windows * 2.0);
-  const netWallArea = Math.max(0, rawWallArea - deductions);
+  // 2. Calculation Breakdown
+  const grossArea = perimeterMeters * settings.wallHeight;
+  const doorDeduction = settings.doors * 1.6;
+  const cabinetDeduction = settings.cabinets * 1.5; // Example deduction for built-ins
+  const netWallArea = Math.max(0, grossArea - doorDeduction - cabinetDeduction);
 
-  // 4. Create the entry
   const newEntry = {
     ...settings,
-    mode: mode, // Fixes the Excel "Exterior" bug
-    floorArea: floorArea,
-    wallArea: netWallArea,
-    perimeter: perimeterMeters,
+    mode: mode, 
+    perimeter: perimeterMeters.toFixed(2),
+    heightUsed: settings.wallHeight,
+    grossArea: grossArea.toFixed(2),
+    deductions: (doorDeduction + cabinetDeduction).toFixed(2),
+    wallArea: netWallArea, // This is used for the paint calc
     label: `Room ${takeoffs.length + 1}`
   };
 
   setTakeoffs([...takeoffs, newEntry]);
   
-  // Reset inventory for next room
-  setSettings(prev => ({ ...prev, doors: 0, windows: 0 }));
+  // Clear inventory so you don't accidentally carry 2 doors into the next room
+  setSettings(prev => ({ ...prev, doors: 0, cabinets: 0 }));
 };
 
   // --- UNDO / RESET LOGIC ---
