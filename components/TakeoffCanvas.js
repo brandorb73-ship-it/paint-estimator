@@ -76,16 +76,24 @@ const TakeoffCanvas = ({ mode, savedTakeoffs, onComplete, onCalibrate, backgroun
           <Line points={calibPoints} stroke="red" strokeWidth={2} />
 
           {/* Finished Takeoffs */}
-          {savedTakeoffs.map((t, i) => (
-            <Line
-              key={i}
-              points={t.points}
-              fill={t.mode === 'interior' ? "rgba(72, 187, 120, 0.3)" : "rgba(229, 62, 62, 0.1)"}
-              stroke={t.mode === 'interior' ? "#2f855a" : "#e53e3e"}
-              strokeWidth={2}
-              closed={t.mode === 'interior'}
-            />
-          ))}
+{savedTakeoffs.map((t) => (
+  <React.Fragment key={t.id}>
+    {/* The Room Shape */}
+    <Line
+      points={t.points}
+      fill="rgba(72, 187, 120, 0.4)" // This gives the Green Fill
+      stroke="#2f855a"
+      strokeWidth={2}
+      closed={true}
+    />
+    {/* The Label on the map */}
+    <Text 
+      x={t.points[0]} y={t.points[1] - 15} 
+      text={t.label} 
+      fill="black" fontStyle="bold" 
+    />
+  </React.Fragment>
+))}
 
           {/* Active Line Drawing */}
           <Line 
