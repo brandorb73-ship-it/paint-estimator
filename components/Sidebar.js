@@ -7,7 +7,7 @@ const Sidebar = ({ currentSettings, setSettings, mode, setMode, takeoffs, onSave
     setSettings({ ...currentSettings, [key]: Math.max(0, (currentSettings[key] || 0) + value) });
   };
 const getPaintLiters = (area) => {
-  const coveragePerLiter = 12; // Standard Melbourne coverage
+  const coveragePerLiter = 12; // Standard Melbourne coverage 
   return ((area / coveragePerLiter) * 2).toFixed(2); // 2 coats
 };
   return (
