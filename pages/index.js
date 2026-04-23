@@ -71,13 +71,28 @@ const handleFileUpload = (file) => {
     if (points.length < 4) return;
     
     let calcData;
-    if (mode === 'interior') {
-      const area = calculatePolygonArea(points, settings.scale);
-      // Logic for RAV: Wall area estimate based on perimeter/standard ratios
-      calcData = { wallArea: area * 2.5, floorArea: area }; 
-    } else {
-      calcData = calculateLinearFeature(points, settings.scale, settings.wallHeight, settings.exteriorType);
-    }
+// Inside handleSave in pages/index.js
+if (mode === 'interior') {
+  const floorArea = calculatePolygonArea(points, settings.scale);
+  
+  // Perimter logic: Sum of distances between all points
+  let perimeterPixels = 0;
+  for (let i = 0; i < points.length - 2; i += 2) {
+    perimeterPixels += Math.sqrt(
+      Math.pow(points[i+2] - points[i], 2) + 
+      Math.pow(points[i+3] - points[i+1], 2)
+    );
+  }
+  const perimeterMeters = (perimeterPixels * settings.scale) / 1000;
+  
+  // Wall Area = Perimeter * Height (standard 2.4m)
+  const wallArea = perimeterMeters * settings.wallHeight;
+
+  calcData = { 
+    floorArea: floorArea, 
+    wallArea: wallArea // This is what the paint volume should use!
+  }; 
+}
 
     const newEntry = {
       ...settings,
