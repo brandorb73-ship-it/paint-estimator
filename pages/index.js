@@ -62,48 +62,45 @@ const handleFileUpload = (file) => {
 
   // --- SAVE TAKEOFF LOGIC ---
   const handleSave = (points) => {
-    if (!settings.scale) {
-      alert("Please Calibrate the plan scale first!");
-      setMode('calibrate');
-      return;
-    }
+  if (!settings.scale) {
+    alert("Please Calibrate first!");
+    return;
+  }
 
-    if (points.length < 4) return;
-    
-    let calcData;
-// Inside handleSave in pages/index.js
-if (mode === 'interior') {
+  // 1. Calculate Floor Area (for Ceilings)
   const floorArea = calculatePolygonArea(points, settings.scale);
-  
-  // Perimter logic: Sum of distances between all points
+
+  // 2. Calculate Perimeter (for Walls)
   let perimeterPixels = 0;
-  for (let i = 0; i < points.length - 2; i += 2) {
-    perimeterPixels += Math.sqrt(
-      Math.pow(points[i+2] - points[i], 2) + 
-      Math.pow(points[i+3] - points[i+1], 2)
-    );
+  for (let i = 0; i < points.length; i += 2) {
+    const x1 = points[i];
+    const y1 = points[i + 1];
+    const x2 = points[(i + 2) % points.length];
+    const y2 = points[(i + 3) % points.length];
+    perimeterPixels += Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
   }
   const perimeterMeters = (perimeterPixels * settings.scale) / 1000;
-  
-  // Wall Area = Perimeter * Height (standard 2.4m)
-  const wallArea = perimeterMeters * settings.wallHeight;
 
-  calcData = { 
-    floorArea: floorArea, 
-    wallArea: wallArea // This is what the paint volume should use!
-  }; 
-}
+  // 3. Calculate Wall Area (minus deductions for doors/windows)
+  const rawWallArea = perimeterMeters * settings.wallHeight;
+  const deductions = (settings.doors * 1.6) + (settings.windows * 2.0);
+  const netWallArea = Math.max(0, rawWallArea - deductions);
 
-    const newEntry = {
-      ...settings,
-      ...calcData,
-      points,
-      mode,
-      label: `${mode === 'interior' ? 'Room' : settings.exteriorType} ${takeoffs.length + 1}`
-    };
-    
-    setTakeoffs([...takeoffs, newEntry]);
+  // 4. Create the entry
+  const newEntry = {
+    ...settings,
+    mode: mode, // Fixes the Excel "Exterior" bug
+    floorArea: floorArea,
+    wallArea: netWallArea,
+    perimeter: perimeterMeters,
+    label: `Room ${takeoffs.length + 1}`
   };
+
+  setTakeoffs([...takeoffs, newEntry]);
+  
+  // Reset inventory for next room
+  setSettings(prev => ({ ...prev, doors: 0, windows: 0 }));
+};
 
   // --- UNDO / RESET LOGIC ---
   const undoTask = () => {
