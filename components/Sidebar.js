@@ -56,7 +56,19 @@ const Sidebar = ({ currentSettings, setSettings, mode, setMode, takeoffs, onSave
           <option value="Porter's">Porter's (Specialty)</option>
         </select>
       </div>
-
+<div style={{ marginBottom: '15px' }}>
+  <label style={{ fontSize: '12px', color: '#a0aec0' }}>Surface Condition</label>
+  <select 
+    value={currentSettings.surfaceType} 
+    onChange={(e) => setSettings({...currentSettings, surfaceType: e.target.value})}
+    style={{ width: '100%', padding: '8px', background: '#2d3748', color: 'white', borderRadius: '4px' }}
+  >
+    <option value="Plaster">Standard Plaster</option>
+    <option value="Fresh Render">Fresh Render (Porous)</option>
+    <option value="Brick">Face Brick</option>
+    <option value="Timber">Timber / Weatherboard</option>
+  </select>
+</div>
       {/* 2. MODE TOGGLE */}
       <div style={{ marginTop: '20px', display: 'flex', gap: '5px' }}>
         <button onClick={() => setMode('interior')} style={{ ...toggleBtn, backgroundColor: mode === 'interior' ? '#3182ce' : '#2d3748' }}>Interior</button>
@@ -124,6 +136,19 @@ const Sidebar = ({ currentSettings, setSettings, mode, setMode, takeoffs, onSave
         </button>
         <button onClick={onSave} style={{ ...btnBase, backgroundColor: '#48bb78', marginBottom: '10px', fontSize: '1rem' }}>Confirm Takeoff</button>
         <button onClick={onExport} style={{ ...btnBase, backgroundColor: '#2d3748', color: '#f6ad55', border: '2px solid #f6ad55' }}>Export Excel Report</button>
+          <button 
+  onClick={() => window.print()}
+  style={{ 
+    marginTop: '10px', 
+    padding: '12px', 
+    background: '#4a5568', 
+    color: 'white', 
+    borderRadius: '6px',
+    fontWeight: 'bold'
+  }}
+>
+  Print Full Project (PDF)
+</button>
       </div>
 
       {/* 6. HISTORY (RESTORED & IMPROVED) */}
