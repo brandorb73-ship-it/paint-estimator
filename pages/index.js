@@ -20,15 +20,18 @@ export default function App() {
   const [takeoffs, setTakeoffs] = useState([]);
   const [planImage, setPlanImage] = useState(null);
   
-  const [settings, setSettings] = useState({
-    scale: null,         // Millimeters per pixel
-    ceilingType: 'standard',
-    windowType: 'aluminum',
-    exteriorType: 'weatherboard',
-    wallHeight: 2.4,     // Standard height for RAV Property Projects
-    doors: 0,
-    windows: 0,
-    cabinets: 0
+const [settings, setSettings] = useState({
+  scale: null,
+  ceilingType: 'standard',
+  windowType: 'aluminum',
+  exteriorType: 'weatherboard',
+  wallHeight: 2.4, // Standard for RAV Property Projects
+  doors: 0,
+  windows: 0,    // Added
+  cabinets: 0,   // Added
+  projectType: 'House Refresh', // Default
+  surfaceType: 'Plaster',       // Default
+  paintBrand: 'Dulux'           // Default
   });
 
   useEffect(() => { 
@@ -132,13 +135,13 @@ const handleSave = (points) => {
   onExport={() => exportProfessionalReport(takeoffs, totalProjectQuote)}
   onUpload={handleFileUpload} // <--- THIS LINE IS CRITICAL
 />
-      <TakeoffCanvas 
-        mode={mode}
-        savedTakeoffs={takeoffs} 
-        onComplete={handleSave} 
-        onCalibrate={handleCalibration}
-        backgroundImage={planImage}
-      />
+<TakeoffCanvas 
+  mode={mode}
+  savedTakeoffs={takeoffs} // Ensure TakeoffCanvas.js uses 'savedTakeoffs'
+  onComplete={handleSave} 
+  onCalibrate={handleCalibration}
+  backgroundImage={planImage}
+/>
     </div>
   );
 }
