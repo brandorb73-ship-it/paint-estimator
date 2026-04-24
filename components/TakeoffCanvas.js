@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Stage, Layer, Line, Rect, Circle, Image as KonvaImage } from 'react-konva';
+// 1. ADD 'Text' TO THIS IMPORT LINE
+import { Stage, Layer, Line, Rect, Circle, Text, Image as KonvaImage } from 'react-konva';
 
 const TakeoffCanvas = ({ mode, savedTakeoffs, onComplete, onCalibrate, backgroundImage }) => {
   const [points, setPoints] = useState([]);
   const [calibPoints, setCalibPoints] = useState([]);
   const [imageObj, setImageObj] = useState(null);
 
-  // Load the plan image as a background
   useEffect(() => {
     if (backgroundImage) {
       const img = new window.Image();
@@ -15,23 +15,23 @@ const TakeoffCanvas = ({ mode, savedTakeoffs, onComplete, onCalibrate, backgroun
     }
   }, [backgroundImage]);
   
-const getCenterOfPoints = (points) => {
-  let totalX = 0, totalY = 0;
-  for (let i = 0; i < points.length; i += 2) {
-    totalX += points[i];
-    totalY += points[i + 1];
-  }
-  return { x: totalX / (points.length / 2), y: totalY / (points.length / 2) };
-};
+  const getCenterOfPoints = (points) => {
+    if (!points || points.length === 0) return { x: 0, y: 0 };
+    let totalX = 0, totalY = 0;
+    for (let i = 0; i < points.length; i += 2) {
+      totalX += points[i];
+      totalY += points[i + 1];
+    }
+    return { x: totalX / (points.length / 2), y: totalY / (points.length / 2) };
+  };
+
   const handleMouseDown = (e) => {
     const pos = e.target.getStage().getPointerPosition();
-
-    // 1. CALIBRATION LOGIC
     if (mode === 'calibrate') {
       const newCalib = [...calibPoints, pos.x, pos.y];
       setCalibPoints(newCalib);
       if (newCalib.length === 4) {
-        const physicalLength = window.prompt("Enter known length in mm (e.g., 900 for a door):");
+        const physicalLength = window.prompt("Enter known length in mm:");
         if (physicalLength) {
           const dist = Math.sqrt(
             Math.pow(newCalib[2] - newCalib[0], 2) + 
@@ -43,8 +43,6 @@ const getCenterOfPoints = (points) => {
       }
       return;
     }
-
-    // 2. DRAWING LOGIC
     setPoints([...points, pos.x, pos.y]);
   };
 
@@ -57,16 +55,14 @@ const getCenterOfPoints = (points) => {
   return (
     <div style={{ flexGrow: 1, backgroundColor: '#2d3748', overflow: 'hidden' }}>
       <Stage 
-        width={window.innerWidth - 300} 
-        height={window.innerHeight}
+        width={typeof window !== 'undefined' ? window.innerWidth - 300 : 800} 
+        height={typeof window !== 'undefined' ? window.innerHeight : 600}
         onMouseDown={handleMouseDown}
         onDblClick={handleDblClick}
       >
         <Layer>
-          {/* Default Canvas Background */}
           <Rect width={5000} height={5000} fill="#f0f0f0" />
           
-          {/* THE WORKING PLAN IMAGE */}
           {imageObj && (
             <KonvaImage
               image={imageObj}
@@ -77,41 +73,36 @@ const getCenterOfPoints = (points) => {
             />
           )}
 
-          {/* Calibration Visuals */}
           {calibPoints.map((p, i) => i % 2 === 0 && (
             <Circle key={i} x={calibPoints[i]} y={calibPoints[i+1]} radius={5} fill="red" />
           ))}
           <Line points={calibPoints} stroke="red" strokeWidth={2} />
 
-          {/* Finished Takeoffs */}
-{takeoffs.map((t) => {
-  const center = getCenterOfPoints(t.points);
-  return (
-    <React.Fragment key={t.id}>
-      <Line
-        points={t.points}
-        fill="rgba(72, 187, 120, 0.4)" // RAV Green fill
-        stroke="#2f855a"
-        strokeWidth={2}
-        closed={true}
-      />
-      <Text 
-        x={center.x} 
-        y={center.y} 
-        text={t.label} 
-        fontSize={16}
-        fill="white" 
-        fontStyle="bold"
-        align="center"
-        shadowColor="black"
-        shadowBlur={2}
-        offsetX={20} // Centers the text roughly
-      />
-    </React.Fragment>
-  );
-})}
+          {/* 2. CHANGE 'takeoffs.map' TO 'savedTakeoffs.map' */}
+          {savedTakeoffs && savedTakeoffs.map((t) => {
+            const center = getCenterOfPoints(t.points);
+            return (
+              <React.Fragment key={t.id}>
+                <Line
+                  points={t.points}
+                  fill="rgba(72, 187, 120, 0.4)" 
+                  stroke="#2f855a"
+                  strokeWidth={2}
+                  closed={true}
+                />
+                <Text 
+                  x={center.x - 20} 
+                  y={center.y} 
+                  text={t.label} 
+                  fontSize={14}
+                  fill="black" 
+                  fontStyle="bold"
+                  align="center"
+                />
+              </React.Fragment>
+            );
+          })}
 
-          {/* Active Line Drawing */}
           <Line 
             points={points} 
             stroke={mode === 'interior' ? "#3182ce" : "#e53e3e"} 
