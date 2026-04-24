@@ -69,6 +69,32 @@ const Sidebar = ({ currentSettings, setSettings, mode, setMode, takeoffs, onSave
     <option value="Timber">Timber / Weatherboard</option>
   </select>
 </div>
+
+{/* Surface & Coat Requirements */}
+<div style={{ marginBottom: '15px', padding: '10px', background: '#2d3748', borderRadius: '8px' }}>
+  <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', color: '#cbd5e0', fontSize: '14px' }}>
+    <input 
+      type="checkbox" 
+      checked={currentSettings.undercoat} 
+      onChange={(e) => setSettings({...currentSettings, undercoat: e.target.checked})}
+      style={{ marginRight: '10px' }}
+    />
+    Apply Undercoat / Sealer?
+  </label>
+  
+  <div style={{ marginTop: '10px' }}>
+    <label style={{ fontSize: '12px', color: '#a0aec0' }}>Total Top Coats</label>
+    <select 
+      value={currentSettings.topCoats} 
+      onChange={(e) => setSettings({...currentSettings, topCoats: parseInt(e.target.value)})}
+      style={{ width: '100%', padding: '6px', background: '#1a202c', color: 'white', borderRadius: '4px', border: '1px solid #4a5568' }}
+    >
+      <option value={2}>2 Coats (Standard)</option>
+      <option value={3}>3 Coats (Feature/Porous)</option>
+      <option value={1}>1 Coat (Refresh)</option>
+    </select>
+  </div>
+</div>
       {/* 2. MODE TOGGLE */}
       <div style={{ marginTop: '20px', display: 'flex', gap: '5px' }}>
         <button onClick={() => setMode('interior')} style={{ ...toggleBtn, backgroundColor: mode === 'interior' ? '#3182ce' : '#2d3748' }}>Interior</button>
