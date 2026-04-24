@@ -32,6 +32,8 @@ const [settings, setSettings] = useState({
   projectType: 'House Refresh', // Default
   surfaceType: 'Plaster',       // Default
   paintBrand: 'Dulux'           // Default
+  undercoat: false, // New
+  topCoats: 2       // New
   });
 
   useEffect(() => { 
@@ -119,7 +121,7 @@ const handleSave = (points) => {
   if (!mounted) return null;
 
   // Calculate the total project price for the export
-  const totalProjectQuote = generateFinalQuote(takeoffs);
+const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.labour) || 0), 0);
 
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', background: '#f7fafc' }}>
