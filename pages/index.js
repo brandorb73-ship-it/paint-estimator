@@ -64,10 +64,9 @@ const handleFileUpload = (file) => {
 const handleSave = (points) => {
   if (!settings.scale) return alert("Please Calibrate Scale First!");
 
-  // 1. CALCULATE FLOOR AREA (Used for Ceilings and Porches)
   const floorArea = calculatePolygonArea(points, settings.scale);
   
-  // 2. CALCULATE PERIMETER (Used for Walls)
+  // PERIMETER CALCULATION
   let perimeterPixels = 0;
   for (let i = 0; i < points.length; i += 2) {
     const x1 = points[i], y1 = points[i+1];
@@ -76,53 +75,34 @@ const handleSave = (points) => {
   }
   const perimeterMeters = (perimeterPixels * settings.scale) / 1000;
 
-  // 3. PORCH LOGIC & INTERIOR CALCULATION
-  let finalSurfaceArea = 0;
-  
-  if (mode === 'exterior' && settings.exteriorType === 'porch') {
-    // For Porches, we paint the flat floor/ceiling surface area
-    finalSurfaceArea = floorArea;
-  } else if (mode === 'exterior') {
-    // For Weatherboard/Render Walls outside
-    finalSurfaceArea = perimeterMeters * settings.wallHeight;
-  } else {
-    // Interior: (Perimeter x Height) - (Deductions for doors/windows/cabinets)
-    const grossWallArea = perimeterMeters * settings.wallHeight; 
-    const doorDeduction = (settings.doors || 0) * 1.6;
-    const windowDeduction = (settings.windows || 0) * 1.5;
-    const cabinetDeduction = (settings.cabinets || 0) * 2.0;
-    
-    finalSurfaceArea = Math.max(0, grossWallArea - doorDeduction - windowDeduction - cabinetDeduction);
-  }
+  // DYNAMIC DEDUCTIONS (Doors, Windows, Cabinets)
+  const deductions = (settings.doors * 1.6) + (settings.windows * 1.2) + (settings.cabinets * 2.0);
+  const netWallArea = Math.max(0, (perimeterMeters * settings.wallHeight) - deductions);
 
-  // 4. CREATE THE FORENSIC ENTRY
+  // LABOUR CALCULATION (Per m2 rates)
+  const rates = { "New Build": 35, "Aged Care": 55, "Boutique": 45, "Refresh": 30 };
+  const projectRate = rates[settings.projectType] || 35;
+  const surfaceMultiplier = settings.surfaceType === "Fresh Render" ? 1.2 : 1.0; 
+  const estLabour = netWallArea * projectRate * surfaceMultiplier;
+
   const newEntry = {
     id: Date.now(),
-    label: prompt("Enter Area Name (e.g. Master Bed, Porch, Ensuite):") || `Area ${takeoffs.length + 1}`,
+    label: prompt("Enter Room Name (e.g. BED 1, PORCH):") || `Room ${takeoffs.length + 1}`,
     mode: mode,
-    points: points, // Keeps the Green Fill working
+    points: points, // THIS PREVENTS THE MAP FROM DISAPPEARING
     perimeter: perimeterMeters.toFixed(2),
     wallHeight: settings.wallHeight,
-    wallArea: finalSurfaceArea,
-    floorArea: floorArea,
-    // Capture current UI state
-    projectType: settings.projectType,
+    wallArea: netWallArea,
+    labour: estLabour,
+    coats: settings.undercoat ? "1U + 2T" : "2T", // Undercoat + Topcoats
     paintBrand: settings.paintBrand,
-    surfaceType: settings.surfaceType,
-    doors: settings.doors,
-    windows: settings.windows,
-    cabinets: settings.cabinets
+    surfaceType: settings.surfaceType
   };
 
   setTakeoffs([...takeoffs, newEntry]);
   
-  // 5. RESET INVENTORY (Clears counts but keeps Scale & Height for next room)
-  setSettings(prev => ({ 
-    ...prev, 
-    doors: 0, 
-    windows: 0, 
-    cabinets: 0 
-  }));
+  // RESET INVENTORY BUT KEEP MAP DATA
+  setSettings(prev => ({ ...prev, doors: 0, windows: 0, cabinets: 0 }));
 };
   // --- UNDO / RESET LOGIC ---
   const undoTask = () => {
