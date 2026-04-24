@@ -14,7 +14,15 @@ const TakeoffCanvas = ({ mode, savedTakeoffs, onComplete, onCalibrate, backgroun
       img.onload = () => setImageObj(img);
     }
   }, [backgroundImage]);
-
+  
+const getCenterOfPoints = (points) => {
+  let totalX = 0, totalY = 0;
+  for (let i = 0; i < points.length; i += 2) {
+    totalX += points[i];
+    totalY += points[i + 1];
+  }
+  return { x: totalX / (points.length / 2), y: totalY / (points.length / 2) };
+};
   const handleMouseDown = (e) => {
     const pos = e.target.getStage().getPointerPosition();
 
@@ -76,24 +84,32 @@ const TakeoffCanvas = ({ mode, savedTakeoffs, onComplete, onCalibrate, backgroun
           <Line points={calibPoints} stroke="red" strokeWidth={2} />
 
           {/* Finished Takeoffs */}
-{savedTakeoffs.map((t) => (
-  <React.Fragment key={t.id}>
-    {/* The Room Shape */}
-    <Line
-      points={t.points}
-      fill="rgba(72, 187, 120, 0.4)" // This gives the Green Fill
-      stroke="#2f855a"
-      strokeWidth={2}
-      closed={true}
-    />
-    {/* The Label on the map */}
-    <Text 
-      x={t.points[0]} y={t.points[1] - 15} 
-      text={t.label} 
-      fill="black" fontStyle="bold" 
-    />
-  </React.Fragment>
-))}
+{takeoffs.map((t) => {
+  const center = getCenterOfPoints(t.points);
+  return (
+    <React.Fragment key={t.id}>
+      <Line
+        points={t.points}
+        fill="rgba(72, 187, 120, 0.4)" // RAV Green fill
+        stroke="#2f855a"
+        strokeWidth={2}
+        closed={true}
+      />
+      <Text 
+        x={center.x} 
+        y={center.y} 
+        text={t.label} 
+        fontSize={16}
+        fill="white" 
+        fontStyle="bold"
+        align="center"
+        shadowColor="black"
+        shadowBlur={2}
+        offsetX={20} // Centers the text roughly
+      />
+    </React.Fragment>
+  );
+})}
 
           {/* Active Line Drawing */}
           <Line 
