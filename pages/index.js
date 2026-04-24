@@ -68,8 +68,6 @@ const handleSave = (points) => {
   if (!settings.scale) return alert("Please Calibrate Scale First!");
 
   const floorArea = calculatePolygonArea(points, settings.scale);
-  
-  // PERIMETER CALCULATION
   let perimeterPixels = 0;
   for (let i = 0; i < points.length; i += 2) {
     const x1 = points[i], y1 = points[i+1];
@@ -78,33 +76,34 @@ const handleSave = (points) => {
   }
   const perimeterMeters = (perimeterPixels * settings.scale) / 1000;
 
-  // DYNAMIC DEDUCTIONS (Doors, Windows, Cabinets)
-  const deductions = (settings.doors * 1.6) + (settings.windows * 1.2) + (settings.cabinets * 2.0);
-  const netWallArea = Math.max(0, (perimeterMeters * settings.wallHeight) - deductions);
+  // FIX: Force numbers to 0 if they are undefined to prevent NaN
+  const d = settings.doors || 0;
+  const w = settings.windows || 0;
+  const c = settings.cabinets || 0;
 
-  // LABOUR CALCULATION (Per m2 rates)
-  const rates = { "New Build": 35, "Aged Care": 55, "Boutique": 45, "Refresh": 30 };
+  const deductions = (d * 1.6) + (w * 1.5) + (c * 2.0);
+  const netArea = (perimeterMeters * settings.wallHeight) - deductions;
+
+  const rates = { "New Build": 35, "Aged Care": 55, "Boutique": 45, "House Refresh": 30 };
   const projectRate = rates[settings.projectType] || 35;
-  const surfaceMultiplier = settings.surfaceType === "Fresh Render" ? 1.2 : 1.0; 
-  const estLabour = netWallArea * projectRate * surfaceMultiplier;
-
+  
   const newEntry = {
     id: Date.now(),
-    label: prompt("Enter Room Name (e.g. BED 1, PORCH):") || `Room ${takeoffs.length + 1}`,
-    mode: mode,
-    points: points, // THIS PREVENTS THE MAP FROM DISAPPEARING
+    label: prompt("Room Name:") || "Unnamed Area",
+    points: points,
     perimeter: perimeterMeters.toFixed(2),
     wallHeight: settings.wallHeight,
-    wallArea: netWallArea,
-    labour: estLabour,
-    coats: settings.undercoat ? "1U + 2T" : "2T", // Undercoat + Topcoats
+    wallArea: netArea,
+    doors: d,
+    windows: w,
+    cabinets: c,
+    projectType: settings.projectType,
     paintBrand: settings.paintBrand,
-    surfaceType: settings.surfaceType
+    surfaceType: settings.surfaceType || "Plaster", // Defaulting to Plaster
+    needsUndercoat: settings.undercoat || false
   };
 
   setTakeoffs([...takeoffs, newEntry]);
-  
-  // RESET INVENTORY BUT KEEP MAP DATA
   setSettings(prev => ({ ...prev, doors: 0, windows: 0, cabinets: 0 }));
 };
   // --- UNDO / RESET LOGIC ---
