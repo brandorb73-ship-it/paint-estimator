@@ -62,9 +62,11 @@ const handleFileUpload = (file) => {
 
   // --- SAVE TAKEOFF LOGIC ---
 const handleSave = (points) => {
-  if (!settings.scale) return alert("Calibrate first!");
+  if (!settings.scale) return alert("Please Calibrate Scale First!");
 
-  // 1. Perimeter Calculation
+  // 1. DIMENSION CALCULATIONS
+  const floorArea = calculatePolygonArea(points, settings.scale);
+  
   let perimeterPixels = 0;
   for (let i = 0; i < points.length; i += 2) {
     const x1 = points[i], y1 = points[i+1];
@@ -73,27 +75,39 @@ const handleSave = (points) => {
   }
   const perimeterMeters = (perimeterPixels * settings.scale) / 1000;
 
-  // 2. Calculation Breakdown
-  const grossArea = perimeterMeters * settings.wallHeight;
-  const doorDeduction = settings.doors * 1.6;
-  const cabinetDeduction = settings.cabinets * 1.5; // Example deduction for built-ins
-  const netWallArea = Math.max(0, grossArea - doorDeduction - cabinetDeduction);
+  // 2. PORCH / EXTERIOR vs INTERIOR LOGIC
+  let finalSurfaceArea = 0;
+  if (mode === 'exterior') {
+    // For Porches, Decks, or Rendered slabs, we use the flat floor area
+    finalSurfaceArea = floorArea;
+  } else {
+    // Interior: Perimeter x Height - Deductions
+    const grossWallArea = perimeterMeters * settings.wallHeight; // Uses dynamic 2.4, 2.7, 3.0 etc.
+    const deductions = (settings.doors * 1.6) + (settings.windows * 1.8) + (settings.cabinets * 2.0);
+    finalSurfaceArea = Math.max(0, grossWallArea - deductions);
+  }
 
   const newEntry = {
-    ...settings,
-    mode: mode, 
+    id: Date.now(),
+    label: prompt("Enter Area Name:") || `Area ${takeoffs.length + 1}`,
+    mode: mode,
+    points: points,
     perimeter: perimeterMeters.toFixed(2),
-    heightUsed: settings.wallHeight,
-    grossArea: grossArea.toFixed(2),
-    deductions: (doorDeduction + cabinetDeduction).toFixed(2),
-    wallArea: netWallArea, // This is used for the paint calc
-    label: `Room ${takeoffs.length + 1}`
+    wallHeight: settings.wallHeight,
+    wallArea: finalSurfaceArea, // This is the core paintable area
+    floorArea: floorArea,
+    doors: settings.doors,
+    windows: settings.windows,
+    cabinets: settings.cabinets,
+    projectType: settings.projectType,
+    paintBrand: settings.paintBrand,
+    surfaceType: settings.surfaceType
   };
 
   setTakeoffs([...takeoffs, newEntry]);
   
-  // Clear inventory so you don't accidentally carry 2 doors into the next room
-  setSettings(prev => ({ ...prev, doors: 0, cabinets: 0 }));
+  // RESET for next room (keeps scale, but clears inventory)
+  setSettings(prev => ({ ...prev, doors: 0, windows: 0, cabinets: 0 }));
 };
 const handleSave = (points) => {
   if (!settings.scale) return alert("Please Calibrate Scale First!");
