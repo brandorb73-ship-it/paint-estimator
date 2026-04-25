@@ -186,18 +186,21 @@ const Sidebar = ({ currentSettings, setSettings, mode, setMode, takeoffs, onSave
 </button>
         <button onClick={onSave} style={{ ...btnBase, backgroundColor: '#48bb78', marginBottom: '10px', fontSize: '1rem' }}>Confirm Takeoff</button>
         <button onClick={onExport} style={{ ...btnBase, backgroundColor: '#2d3748', color: '#f6ad55', border: '2px solid #f6ad55' }}>Export Excel Report</button>
-          <button 
+         <button 
   onClick={() => window.print()}
   style={{ 
-    marginTop: '10px', 
+    width: '100%', 
     padding: '12px', 
-    background: '#4a5568', 
+    marginTop: '10px',
+    background: '#2f855a', // RAV Green
     color: 'white', 
-    borderRadius: '6px',
-    fontWeight: 'bold'
+    borderRadius: '8px', 
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    border: 'none'
   }}
 >
-  Print Full Project (PDF)
+  🖨 Print Forensic PDF
 </button>
       </div>
 
