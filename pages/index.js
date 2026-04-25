@@ -166,6 +166,72 @@ const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.labour
   onCalibrate={handleCalibration}
   backgroundImage={planImage}
 />
+
+    {/* --- PROFESSIONAL PRINT-ONLY REPORT --- */}
+<div id="rav-print-report" style={{ display: 'none' }}>
+  <style>
+    {`
+      @media print {
+        /* Hide everything else */
+        body * { visibility: hidden; }
+        #rav-print-report, #rav-print-report * { visibility: visible; }
+        #rav-print-report { 
+          display: block !important; 
+          position: absolute; 
+          left: 0; 
+          top: 0; 
+          width: 100%; 
+          color: black !important;
+          background: white !important;
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #333; padding: 10px; text-align: left; font-size: 12px; }
+        th { background-color: #f2f2f2 !important; -webkit-print-color-adjust: exact; }
+        h1 { color: #2f855a; border-bottom: 2px solid #2f855a; }
+        .summary-box { margin-top: 30px; border: 2px solid #000; padding: 15px; page-break-inside: avoid; }
+      }
+    `}
+  </style>
+
+  <h1 style={{ margin: '0 0 10px 0' }}>Forensic Takeoff & Estimate Report</h1>
+  <p><strong>Entity:</strong> RAV Property Projects</p>
+  <p><strong>Date Generated:</strong> {new Date().toLocaleDateString('en-AU')}</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Room Name</th>
+        <th>Prep Level</th>
+        <th>Walls (m²)</th>
+        <th>Trims (D/W/C)</th>
+        <th>Labour + Materials</th>
+      </tr>
+    </thead>
+    <tbody>
+      {takeoffs.map((t) => (
+        <tr key={t.id}>
+          <td>{t.label}</td>
+          <td>{t.prepLevel || 'Standard'}</td>
+          <td>{t.wallArea.toFixed(2)}m²</td>
+          <td>{t.doors}D / {t.windows}W / {t.cabinets}C</td>
+          <td>${t.totalRoomValue}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  <div className="summary-box">
+    <h3>Project Scope Notes:</h3>
+    <ul>
+      <li><strong>Prep:</strong> All surfaces prepared to selected prep levels using mechanical sanding.</li>
+      <li><strong>Paint:</strong> Premium Dulux systems (Wash & Wear / Aquanamel).</li>
+      <li><strong>Margin:</strong> Project includes a 30% management and overhead buffer.</li>
+    </ul>
+    <p style={{ textAlign: 'right', fontSize: '18px' }}>
+      <strong>Grand Total Quote: ${takeoffs.reduce((sum, t) => sum + parseFloat(t.totalRoomValue), 0).toFixed(2)}</strong>
+    </p>
+  </div>
+</div>
     </div>
   );
 }
