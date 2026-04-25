@@ -101,7 +101,7 @@ const handleSave = (points) => {
     projectType: settings.projectType,
     paintBrand: settings.paintBrand,
     surfaceType: settings.surfaceType || "Plaster", // Defaulting to Plaster
-    needsUndercoat: settings.undercoat || false
+    needsUndercoat: settings.undercoat || false,
     deductions: deductionsTotal, // This goes to the Excel column
     wallArea: (perimeterMeters * settings.wallHeight) - deductionsTotal
   };
