@@ -31,7 +31,7 @@ const [settings, setSettings] = useState({
   cabinets: 0,   // Added
   projectType: 'House Refresh', // Default
   surfaceType: 'Plaster',       // Default
-  paintBrand: 'Dulux'           // Default
+  paintBrand: 'Dulux',          // Default
   undercoat: false, // New
   topCoats: 2       // New
   });
@@ -109,14 +109,12 @@ const handleSave = (points) => {
   setSettings(prev => ({ ...prev, doors: 0, windows: 0, cabinets: 0 }));
 };
   // --- UNDO / RESET LOGIC ---
-  const undoTask = () => {
-    if (takeoffs.length > 0) {
-      setTakeoffs(takeoffs.slice(0, -1));
-    } else {
-      setSettings(prev => ({ ...prev, scale: null }));
-      alert("Takeoff history empty. Scale has been reset.");
-    }
-  };
+const undoTask = () => {
+  if (takeoffs.length === 0) return alert("Nothing left to undo!");
+  
+  // Remove the last entry from the history
+  setTakeoffs(prev => prev.slice(0, -1));
+};
 
   if (!mounted) return null;
 
