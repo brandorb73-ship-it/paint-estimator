@@ -33,7 +33,7 @@ const [settings, setSettings] = useState({
   surfaceType: 'Plaster',       // Default
   paintBrand: 'Dulux',          // Default
   undercoat: false, // New
-  topCoats: 2       // New
+  topCoats: 2,      // New
   prepLevel: 'Standard', // Default
   });
 
