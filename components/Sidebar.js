@@ -157,6 +157,18 @@ const Sidebar = ({ currentSettings, setSettings, mode, setMode, takeoffs, onSave
 
       {/* 5. ACTIONS */}
       <div style={{ marginTop: '30px', borderTop: '1px solid #4a5568', paddingTop: '20px' }}>
+            <div style={{ marginBottom: '15px' }}>
+  <label style={{ fontSize: '12px', color: '#a0aec0' }}>Prep & Sanding Level</label>
+  <select 
+    value={currentSettings.prepLevel} 
+    onChange={(e) => setSettings({...currentSettings, prepLevel: e.target.value})}
+    style={{ width: '100%', padding: '8px', background: '#2d3748', color: 'white', borderRadius: '4px' }}
+  >
+    <option value="Standard">Level 1: Standard (Scuff & Roll)</option>
+    <option value="Patching">Level 2: Minor Patching (Gapping/Filling)</option>
+    <option value="Restoration">Level 3: Heavy Prep (Full Sand/Peeling Walls)</option>
+  </select>
+</div>
 <button 
   onClick={onUndo} 
   style={{ 
@@ -171,18 +183,6 @@ const Sidebar = ({ currentSettings, setSettings, mode, setMode, takeoffs, onSave
   }}
 >
   Undo Last Takeoff
-    <div style={{ marginBottom: '15px' }}>
-  <label style={{ fontSize: '12px', color: '#a0aec0' }}>Prep & Sanding Level</label>
-  <select 
-    value={currentSettings.prepLevel} 
-    onChange={(e) => setSettings({...currentSettings, prepLevel: e.target.value})}
-    style={{ width: '100%', padding: '8px', background: '#2d3748', color: 'white', borderRadius: '4px' }}
-  >
-    <option value="Standard">Level 1: Standard (Scuff & Roll)</option>
-    <option value="Patching">Level 2: Minor Patching (Gapping/Filling)</option>
-    <option value="Restoration">Level 3: Heavy Prep (Full Sand/Peeling Walls)</option>
-  </select>
-</div>
 </button>
         <button onClick={onSave} style={{ ...btnBase, backgroundColor: '#48bb78', marginBottom: '10px', fontSize: '1rem' }}>Confirm Takeoff</button>
         <button onClick={onExport} style={{ ...btnBase, backgroundColor: '#2d3748', color: '#f6ad55', border: '2px solid #f6ad55' }}>Export Excel Report</button>
