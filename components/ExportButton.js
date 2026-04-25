@@ -50,6 +50,11 @@ export const exportProfessionalReport = (takeoffs, totalEstimate) => {
       "Est. Paint (L)": `${totalLiters}L`,
       "Labour Cost (AUD)": `$${estimatedLabour}`,
       "Total Est. Cost": `$${(parseFloat(estimatedLabour) + (totalLiters * 25)).toFixed(2)}` // Labour + Material approx
+      "--- TRIM WORK ---": "---",
+  "Doors/Win/Cab Detail": `${t.doors}D / ${t.windows}W / ${t.cabinets}C`,
+  "Trim Paint Type": "Water-Based Enamel (Aquanamel)",
+  "Trim & Prep Cost": `$${t.trimCost || 0}`, // This shows the client the extra value
+  "Total Est. Cost": `$${t.totalRoomValue}`
     };
   });
 
