@@ -167,35 +167,58 @@ const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.labour
   backgroundImage={planImage}
 />
 
-    {/* --- PROFESSIONAL PRINT-ONLY REPORT --- */}
+{/* --- PROFESSIONAL PRINT-ONLY REPORT --- */}
 <div id="rav-print-report" style={{ display: 'none' }}>
   <style>
     {`
       @media print {
-        /* Hide everything else */
-        body * { visibility: hidden; }
-        #rav-print-report, #rav-print-report * { visibility: visible; }
+        @page { 
+          margin: 0; /* Hides the Vercel URL and page numbers */
+        }
+        body { 
+          margin: 1.5cm; /* Adds a clean margin back so content isn't on the edge */
+          visibility: hidden; 
+          background: white !important;
+        }
+        #rav-print-report, #rav-print-report * { 
+          visibility: visible; 
+        }
         #rav-print-report { 
           display: block !important; 
           position: absolute; 
           left: 0; 
           top: 0; 
           width: 100%; 
-          color: black !important;
-          background: white !important;
         }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #333; padding: 10px; text-align: left; font-size: 12px; }
+        th, td { border: 1px solid #333; padding: 10px; text-align: left; font-size: 11px; }
         th { background-color: #f2f2f2 !important; -webkit-print-color-adjust: exact; }
-        h1 { color: #2f855a; border-bottom: 2px solid #2f855a; }
-        .summary-box { margin-top: 30px; border: 2px solid #000; padding: 15px; page-break-inside: avoid; }
       }
     `}
   </style>
 
-  <h1 style={{ margin: '0 0 10px 0' }}>Forensic Takeoff & Estimate Report</h1>
-  <p><strong>Entity:</strong> RAV Property Projects</p>
-  <p><strong>Date Generated:</strong> {new Date().toLocaleDateString('en-AU')}</p>
+  {/* --- HEADER SECTION WITH LOGO --- */}
+  <div style={{ 
+    display: 'flex', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    borderBottom: '2px solid #2f855a', 
+    paddingBottom: '10px',
+    marginBottom: '20px' 
+  }}>
+    <div>
+      <h1 style={{ margin: 0, color: '#2f855a', fontSize: '24px' }}>Forensic Takeoff Report</h1>
+      <p style={{ margin: 0, fontSize: '14px', fontWeight: 'bold' }}>RAV Property Projects</p>
+      <p style={{ margin: 0, fontSize: '12px', color: '#666' }}>Date: {new Date().toLocaleDateString('en-AU')}</p>
+    </div>
+    
+    {/* REPLACE THE URL BELOW WITH YOUR GOOGLE SITES LOGO LINK */}
+    <img 
+      src=https://lh3.googleusercontent.com/sitesv/AA5AbUDC2jGOAZrK7LeX6ooBA0AuJLcyht6yQDx6hSucAMt9THaiISoGx9Y5qU484qeRJbBBGewyu3F3vlu5nRIgW8Mma8Xz8h7CI90gJ7qHWIsy2y41mEJeijkeiYk21t4lOL0rm_-Ydc_v3000Qfo5NTFPYNkyxsn7OpAaqoRaUCOqoN5Z5lRsLEn_=w16383
+      alt="RAV Logo" 
+      style={{ height: '70px', width: 'auto', objectFit: 'contain' }} 
+    />
+  </div>
 
   <table>
     <thead>
@@ -220,16 +243,16 @@ const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.labour
     </tbody>
   </table>
 
-  <div className="summary-box">
-    <h3>Project Scope Notes:</h3>
-    <ul>
-      <li><strong>Prep:</strong> All surfaces prepared to selected prep levels using mechanical sanding.</li>
-      <li><strong>Paint:</strong> Premium Dulux systems (Wash & Wear / Aquanamel).</li>
-      <li><strong>Margin:</strong> Project includes a 30% management and overhead buffer.</li>
+  <div style={{ marginTop: '30px', border: '1px solid #000', padding: '15px' }}>
+    <h3 style={{ margin: '0 0 10px 0' }}>Project Scope & Forensic Notes:</h3>
+    <ul style={{ fontSize: '12px', margin: 0 }}>
+      <li><strong>Preparation:</strong> Surfaces assessed and prepared to specified levels (Standard/Patching/Restoration).</li>
+      <li><strong>Materials:</strong> Premium specification (Dulux Wash&Wear / Aquanamel systems).</li>
+      <li><strong>Inclusions:</strong> Pricing includes all consumables, local travel, and 30% management margin.</li>
     </ul>
-    <p style={{ textAlign: 'right', fontSize: '18px' }}>
-      <strong>Grand Total Quote: ${takeoffs.reduce((sum, t) => sum + parseFloat(t.totalRoomValue), 0).toFixed(2)}</strong>
-    </p>
+    <div style={{ textAlign: 'right', marginTop: '10px' }}>
+       <h2 style={{ margin: 0 }}>Grand Total: ${takeoffs.reduce((sum, t) => sum + parseFloat(t.totalRoomValue), 0).toFixed(2)}</h2>
+    </div>
   </div>
 </div>
     </div>
