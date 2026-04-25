@@ -34,6 +34,7 @@ const [settings, setSettings] = useState({
   paintBrand: 'Dulux',          // Default
   undercoat: false, // New
   topCoats: 2       // New
+  prepLevel: 'Standard', // Default
   });
 
   useEffect(() => { 
@@ -90,6 +91,9 @@ const handleSave = (points) => {
   const roomName = prompt("Room Name:");
   if (!roomName) return; // Stop if user cancels
 
+  const prepSurcharges = { "Standard": 0, "Patching": 5, "Restoration": 15 };
+const prepCost = prepSurcharges[settings.prepLevel] || 0;
+  
   const newEntry = {
     id: Date.now(),
     label: roomName,
@@ -105,6 +109,8 @@ const handleSave = (points) => {
     needsUndercoat: settings.undercoat || false,
     deductions: deductionsArea, // Fixed the variable name here
     wallArea: calculatedWallArea > 0 ? calculatedWallArea : 0 // Prevents negative area
+    prepLevel: settings.prepLevel,
+  labour: (perimeterMeters * settings.wallHeight * (currentRate + prepCost)).toFixed(2)
   };
 
   // 4. Update state using the functional pattern for reliability
