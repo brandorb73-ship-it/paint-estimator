@@ -157,9 +157,21 @@ const Sidebar = ({ currentSettings, setSettings, mode, setMode, takeoffs, onSave
 
       {/* 5. ACTIONS */}
       <div style={{ marginTop: '30px', borderTop: '1px solid #4a5568', paddingTop: '20px' }}>
-        <button onClick={onUndo} style={{ ...btnBase, backgroundColor: '#e53e3e', marginBottom: '10px' }}>
-          {takeoffs.length > 0 ? 'Undo Last Takeoff' : 'Reset Scale'}
-        </button>
+<button 
+  onClick={onUndo} 
+  style={{ 
+    width: '100%', 
+    padding: '12px', 
+    background: '#e53e3e', // Red color
+    color: 'white', 
+    borderRadius: '8px', 
+    fontWeight: 'bold',
+    marginBottom: '10px',
+    cursor: 'pointer'
+  }}
+>
+  Undo Last Takeoff
+</button>
         <button onClick={onSave} style={{ ...btnBase, backgroundColor: '#48bb78', marginBottom: '10px', fontSize: '1rem' }}>Confirm Takeoff</button>
         <button onClick={onExport} style={{ ...btnBase, backgroundColor: '#2d3748', color: '#f6ad55', border: '2px solid #f6ad55' }}>Export Excel Report</button>
           <button 
