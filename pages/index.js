@@ -214,7 +214,7 @@ const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.labour
     
     {/* REPLACE THE URL BELOW WITH YOUR GOOGLE SITES LOGO LINK */}
     <img 
-      src=https://lh3.googleusercontent.com/sitesv/AA5AbUDC2jGOAZrK7LeX6ooBA0AuJLcyht6yQDx6hSucAMt9THaiISoGx9Y5qU484qeRJbBBGewyu3F3vlu5nRIgW8Mma8Xz8h7CI90gJ7qHWIsy2y41mEJeijkeiYk21t4lOL0rm_-Ydc_v3000Qfo5NTFPYNkyxsn7OpAaqoRaUCOqoN5Z5lRsLEn_=w16383
+      src="https://lh3.googleusercontent.com/sitesv/AA5AbUDC2jGOAZrK7LeX6ooBA0AuJLcyht6yQDx6hSucAMt9THaiISoGx9Y5qU484qeRJbBBGewyu3F3vlu5nRIgW8Mma8Xz8h7CI90gJ7qHWIsy2y41mEJeijkeiYk21t4lOL0rm_-Ydc_v3000Qfo5NTFPYNkyxsn7OpAaqoRaUCOqoN5Z5lRsLEn_=w16383"
       alt="RAV Logo" 
       style={{ height: '70px', width: 'auto', objectFit: 'contain' }} 
     />
