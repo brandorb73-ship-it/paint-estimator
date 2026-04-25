@@ -108,7 +108,7 @@ const prepCost = prepSurcharges[settings.prepLevel] || 0;
     surfaceType: settings.surfaceType || "Plaster",
     needsUndercoat: settings.undercoat || false,
     deductions: deductionsArea, // Fixed the variable name here
-    wallArea: calculatedWallArea > 0 ? calculatedWallArea : 0 // Prevents negative area
+    wallArea: calculatedWallArea > 0 ? calculatedWallArea : 0, // Prevents negative area
     prepLevel: settings.prepLevel,
   labour: (perimeterMeters * settings.wallHeight * (currentRate + prepCost)).toFixed(2)
   };
