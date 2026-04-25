@@ -124,6 +124,15 @@ const handleSave = (points) => {
   setTakeoffs(prev => [...prev, newEntry]);
   setSettings(prev => ({ ...prev, doors: 0, windows: 0, cabinets: 0 }));
 };
+
+  // UNDO LOGIC - Make sure it is outside handleSave!
+  const undoTask = () => {
+    setTakeoffs((prev) => {
+      if (prev.length === 0) return prev;
+      return prev.slice(0, -1);
+    });
+  };
+
   // Calculate the total project price for the export
 const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.labour) || 0), 0);
 
