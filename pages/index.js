@@ -96,6 +96,14 @@ const handleSave = (points) => {
   const grossWallArea = perimeterMeters * settings.wallHeight;
   const calculatedWallArea = grossWallArea - deductionsArea;
 
+// --- TRIM PRICING (Industry Standard for Melbourne) ---
+const DOOR_RATE = 90;    // Includes both sides + frame
+const WINDOW_RATE = 45;  // Internal frame/architrave
+const CABINET_RATE = 120; // Per standard unit/face
+
+const trimLabour = (d * DOOR_RATE) + (w * WINDOW_RATE) + (c * CABINET_RATE);
+const trimMaterial = ((d + w + c) * 0.5) * 35; // Approx 0.5L of Enamel per unit @ $35/L
+  
   const roomName = prompt("Room Name:");
   if (!roomName) return; 
 
@@ -117,7 +125,9 @@ const handleSave = (points) => {
     deductions: deductionsArea, 
     wallArea: calculatedWallArea > 0 ? calculatedWallArea : 0,
     // LABOUR MATH: (Base Rate + Prep Surcharge) * Area
-    labour: (calculatedWallArea * (currentRate + prepCost)).toFixed(2)
+    labour: (calculatedWallArea * (currentRate + prepCost)).toFixed(2),
+    trimCost: (trimLabour + trimMaterial).toFixed(2),
+  totalRoomValue: (parseFloat(calculatedWallArea * (currentRate + prepCost)) + trimLabour + trimMaterial).toFixed(2)
   };
 
   // 6. Final State Updates
