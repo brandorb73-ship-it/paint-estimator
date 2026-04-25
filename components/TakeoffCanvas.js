@@ -79,29 +79,25 @@ const TakeoffCanvas = ({ mode, savedTakeoffs, onComplete, onCalibrate, backgroun
           <Line points={calibPoints} stroke="red" strokeWidth={2} />
 
           {/* 2. CHANGE 'takeoffs.map' TO 'savedTakeoffs.map' */}
-          {savedTakeoffs && savedTakeoffs.map((t) => {
-            const center = getCenterOfPoints(t.points);
-            return (
-              <React.Fragment key={t.id}>
-                <Line
-                  points={t.points}
-                  fill="rgba(72, 187, 120, 0.4)" 
-                  stroke="#2f855a"
-                  strokeWidth={2}
-                  closed={true}
-                />
-                <Text 
-                  x={center.x - 20} 
-                  y={center.y} 
-                  text={t.label} 
-                  fontSize={14}
-                  fill="black" 
-                  fontStyle="bold"
-                  align="center"
-                />
-              </React.Fragment>
-            );
-          })}
+{/* Finished Takeoffs */}
+{savedTakeoffs && savedTakeoffs.map((t) => (
+  <React.Fragment key={t.id}>
+    <Line
+      points={t.points}
+      fill="rgba(72, 187, 120, 0.4)" // RAV Green
+      stroke="#2f855a"
+      strokeWidth={2}
+      closed={true}
+    />
+    <Text 
+      x={t.points[0]} 
+      y={t.points[1] - 15} 
+      text={t.label} 
+      fill="black" 
+      fontStyle="bold" 
+    />
+  </React.Fragment>
+))}
 
           <Line 
             points={points} 
