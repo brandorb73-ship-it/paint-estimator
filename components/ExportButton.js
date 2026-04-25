@@ -46,15 +46,15 @@ export const exportProfessionalReport = (takeoffs, totalEstimate) => {
       "Doors (Qty)": t.doors || 0,
       "Windows (Qty)": t.windows || 0,
       "Cabinets (Qty)": t.cabinets || 0,
-      "--- ESTIMATES ---": "---",
+"--- ESTIMATES ---": "---",
       "Est. Paint (L)": `${totalLiters}L`,
       "Labour Cost (AUD)": `$${estimatedLabour}`,
-      "Total Est. Cost": `$${(parseFloat(estimatedLabour) + (totalLiters * 25)).toFixed(2)}` // Labour + Material approx
+      "Wall System Cost": `$${(parseFloat(estimatedLabour) + (totalLiters * 25)).toFixed(2)}`, // <--- ADDED COMMA HERE
       "--- TRIM WORK ---": "---",
-  "Doors/Win/Cab Detail": `${t.doors}D / ${t.windows}W / ${t.cabinets}C`,
-  "Trim Paint Type": "Water-Based Enamel (Aquanamel)",
-  "Trim & Prep Cost": `$${t.trimCost || 0}`, // This shows the client the extra value
-  "Total Est. Cost": `$${t.totalRoomValue}`
+      "Doors/Win/Cab Detail": `${t.doors}D / ${t.windows}W / ${t.cabinets}C`,
+      "Trim Paint Type": "Water-Based Enamel (Aquanamel)",
+      "Trim & Prep Cost": `$${t.trimCost || 0}`, // <--- ADDED COMMA HERE
+      "Total Est. Cost": `$${t.totalRoomValue}` // This is now the final total for the room
     };
   });
 
