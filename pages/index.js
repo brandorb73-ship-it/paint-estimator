@@ -173,10 +173,9 @@ const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.labour
     {`
       @media print {
         @page { 
-          margin: 0; /* Hides the Vercel URL and page numbers */
+          margin: 10mm; /* Small margin to satisfy printer hardware */
         }
         body { 
-          margin: 1.5cm; /* Adds a clean margin back so content isn't on the edge */
           visibility: hidden; 
           background: white !important;
         }
@@ -188,38 +187,50 @@ const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.labour
           position: absolute; 
           left: 0; 
           top: 0; 
-          width: 100%; 
+          width: 100%;
+          padding: 20px; /* This prevents text from hitting the edge */
+          box-sizing: border-box;
+          color: black !important;
         }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #333; padding: 10px; text-align: left; font-size: 11px; }
-        th { background-color: #f2f2f2 !important; -webkit-print-color-adjust: exact; }
+        th, td { border: 1px solid #333; padding: 12px; text-align: left; font-size: 12px; }
+        th { background-color: #f8f9fa !important; -webkit-print-color-adjust: exact; }
+        .footer-box { 
+          margin-top: 40px; 
+          border-top: 2px solid #2f855a; 
+          padding-top: 20px;
+        }
       }
     `}
   </style>
 
-  {/* --- HEADER SECTION WITH LOGO --- */}
+  {/* --- HEADER --- */}
   <div style={{ 
     display: 'flex', 
     justifyContent: 'space-between', 
-    alignItems: 'center', 
-    borderBottom: '2px solid #2f855a', 
-    paddingBottom: '10px',
-    marginBottom: '20px' 
+    alignItems: 'flex-start', 
+    marginBottom: '30px' 
   }}>
     <div>
-      <h1 style={{ margin: 0, color: '#2f855a', fontSize: '24px' }}>Forensic Takeoff Report</h1>
-      <p style={{ margin: 0, fontSize: '14px', fontWeight: 'bold' }}>RAV Property Projects</p>
-      <p style={{ margin: 0, fontSize: '12px', color: '#666' }}>Date: {new Date().toLocaleDateString('en-AU')}</p>
+      <h1 style={{ margin: 0, color: '#2f855a', fontSize: '28px', fontFamily: 'serif' }}>
+        Forensic Takeoff Report
+      </h1>
+      <p style={{ margin: '5px 0', fontSize: '16px', fontWeight: 'bold' }}>RAV Property Projects</p>
+      <p style={{ margin: 0, fontSize: '12px', color: '#444' }}>Date: {new Date().toLocaleDateString('en-AU')}</p>
     </div>
-    
-    {/* REPLACE THE URL BELOW WITH YOUR GOOGLE SITES LOGO LINK */}
-    <img 
-      src="https://lh3.googleusercontent.com/sitesv/AA5AbUDC2jGOAZrK7LeX6ooBA0AuJLcyht6yQDx6hSucAMt9THaiISoGx9Y5qU484qeRJbBBGewyu3F3vlu5nRIgW8Mma8Xz8h7CI90gJ7qHWIsy2y41mEJeijkeiYk21t4lOL0rm_-Ydc_v3000Qfo5NTFPYNkyxsn7OpAaqoRaUCOqoN5Z5lRsLEn_=w16383"
-      alt="RAV Logo" 
-      style={{ height: '70px', width: 'auto', objectFit: 'contain' }} 
-    />
+
+    {/* LOGO FIX: Using a wrapper to ensure it displays */}
+    <div style={{ width: '150px', textAlign: 'right' }}>
+      <img 
+        src="YOUR_IMAGE_URL_HERE" 
+        alt="RAV Logo"
+        style={{ width: '100%', height: 'auto', display: 'block' }}
+        onError={(e) => { e.target.style.display = 'none'; }} 
+      />
+    </div>
   </div>
 
+  {/* --- TABLE --- */}
   <table>
     <thead>
       <tr>
@@ -227,31 +238,39 @@ const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.labour
         <th>Prep Level</th>
         <th>Walls (m²)</th>
         <th>Trims (D/W/C)</th>
-        <th>Labour + Materials</th>
+        <th style={{ textAlign: 'right' }}>Labour + Materials</th>
       </tr>
     </thead>
     <tbody>
       {takeoffs.map((t) => (
         <tr key={t.id}>
-          <td>{t.label}</td>
+          <td style={{ fontWeight: 'bold', textTransform: 'capitalize' }}>{t.label}</td>
           <td>{t.prepLevel || 'Standard'}</td>
           <td>{t.wallArea.toFixed(2)}m²</td>
           <td>{t.doors}D / {t.windows}W / {t.cabinets}C</td>
-          <td>${t.totalRoomValue}</td>
+          <td style={{ textAlign: 'right' }}>${parseFloat(t.totalRoomValue).toLocaleString('en-AU', { minimumFractionDigits: 2 })}</td>
         </tr>
       ))}
     </tbody>
   </table>
 
-  <div style={{ marginTop: '30px', border: '1px solid #000', padding: '15px' }}>
-    <h3 style={{ margin: '0 0 10px 0' }}>Project Scope & Forensic Notes:</h3>
-    <ul style={{ fontSize: '12px', margin: 0 }}>
-      <li><strong>Preparation:</strong> Surfaces assessed and prepared to specified levels (Standard/Patching/Restoration).</li>
-      <li><strong>Materials:</strong> Premium specification (Dulux Wash&Wear / Aquanamel systems).</li>
-      <li><strong>Inclusions:</strong> Pricing includes all consumables, local travel, and 30% management margin.</li>
-    </ul>
-    <div style={{ textAlign: 'right', marginTop: '10px' }}>
-       <h2 style={{ margin: 0 }}>Grand Total: ${takeoffs.reduce((sum, t) => sum + parseFloat(t.totalRoomValue), 0).toFixed(2)}</h2>
+  {/* --- FOOTER / TOTALS --- */}
+  <div className="footer-box">
+    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+      <div style={{ width: '60%' }}>
+        <h4 style={{ margin: '0 0 10px 0' }}>Project Scope & Forensic Notes:</h4>
+        <ul style={{ fontSize: '11px', paddingLeft: '20px', color: '#333' }}>
+          <li><strong>Preparation:</strong> Surfaces assessed and prepared to specified levels (Standard/Patching/Restoration).</li>
+          <li><strong>Materials:</strong> Premium specification (Dulux Wash&Wear / Aquanamel systems).</li>
+          <li><strong>Inclusions:</strong> Pricing includes all consumables, local travel, and 30% management margin.</li>
+        </ul>
+      </div>
+      <div style={{ textAlign: 'right' }}>
+        <p style={{ margin: 0, fontSize: '14px' }}>Project Grand Total</p>
+        <h2 style={{ margin: 0, fontSize: '32px', color: '#2f855a' }}>
+          ${takeoffs.reduce((sum, t) => sum + parseFloat(t.totalRoomValue), 0).toLocaleString('en-AU', { minimumFractionDigits: 2 })}
+        </h2>
+      </div>
     </div>
   </div>
 </div>
