@@ -69,7 +69,7 @@ const handleFileUpload = (file) => {
 const handleSave = (points) => {
   if (!settings.scale) return alert("Please Calibrate Scale First!");
 
-  const floorArea = calculatePolygonArea(points, settings.scale);
+  // 1. Calculate Perimeter
   let perimeterPixels = 0;
   for (let i = 0; i < points.length; i += 2) {
     const x1 = points[i], y1 = points[i+1];
@@ -78,46 +78,51 @@ const handleSave = (points) => {
   }
   const perimeterMeters = (perimeterPixels * settings.scale) / 1000;
 
-// Use Number() and || 0 to prevent NaN
+  // 2. Prevent NaN with Defaults
   const d = Number(settings.doors) || 0;
   const w = Number(settings.windows) || 0;
   const c = Number(settings.cabinets) || 0;
 
-  const deductions = (d * 1.6) + (w * 1.5) + (c * 2.0);
-  const netArea = (perimeterMeters * settings.wallHeight) - deductions;
+  // 3. Deduction Calculation (Changed name to match your object below)
+  const deductionsArea = (d * 1.6) + (w * 1.5) + (c * 2.0);
+  const calculatedWallArea = (perimeterMeters * settings.wallHeight) - deductionsArea;
 
-  const rates = { "New Build": 35, "Aged Care": 55, "Boutique": 45, "House Refresh": 30 };
-  const projectRate = rates[settings.projectType] || 35;
-  
+  const roomName = prompt("Room Name:");
+  if (!roomName) return; // Stop if user cancels
+
   const newEntry = {
     id: Date.now(),
-    label: prompt("Room Name:") || "Unnamed Area",
-    points: points,
+    label: roomName,
+    points: [...points], // Use spread to create a clean copy
     perimeter: perimeterMeters.toFixed(2),
     wallHeight: settings.wallHeight,
     doors: d,
     windows: w,
     cabinets: c,
-    projectType: settings.projectType,
-    paintBrand: settings.paintBrand,
-    surfaceType: settings.surfaceType || "Plaster", // Defaulting to Plaster
+    projectType: settings.projectType || "House Refresh",
+    paintBrand: settings.paintBrand || "Dulux",
+    surfaceType: settings.surfaceType || "Plaster",
     needsUndercoat: settings.undercoat || false,
-    deductions: deductionsTotal, // This goes to the Excel column
-    wallArea: (perimeterMeters * settings.wallHeight) - deductionsTotal
+    deductions: deductionsArea, // Fixed the variable name here
+    wallArea: calculatedWallArea > 0 ? calculatedWallArea : 0 // Prevents negative area
   };
 
-  setTakeoffs([...takeoffs, newEntry]);
+  // 4. Update state using the functional pattern for reliability
+  setTakeoffs(prev => [...prev, newEntry]);
+  
+  // 5. Reset inventory for the next room
   setSettings(prev => ({ ...prev, doors: 0, windows: 0, cabinets: 0 }));
 };
-  // --- UNDO / RESET LOGIC ---
-const undoTask = () => {
-  if (takeoffs.length === 0) return alert("Nothing left to undo!");
-  
-  // Remove the last entry from the history
-  setTakeoffs(prev => prev.slice(0, -1));
-};
 
-  if (!mounted) return null;
+const undoTask = () => {
+  setTakeoffs((prev) => {
+    if (prev.length === 0) {
+      alert("Nothing left to undo!");
+      return prev;
+    }
+    return prev.slice(0, -1);
+  });
+};
 
   // Calculate the total project price for the export
 const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.labour) || 0), 0);
