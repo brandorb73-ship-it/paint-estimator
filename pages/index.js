@@ -78,10 +78,10 @@ const handleSave = (points) => {
   }
   const perimeterMeters = (perimeterPixels * settings.scale) / 1000;
 
-  // FIX: Force numbers to 0 if they are undefined to prevent NaN
-  const d = settings.doors || 0;
-  const w = settings.windows || 0;
-  const c = settings.cabinets || 0;
+// Use Number() and || 0 to prevent NaN
+  const d = Number(settings.doors) || 0;
+  const w = Number(settings.windows) || 0;
+  const c = Number(settings.cabinets) || 0;
 
   const deductions = (d * 1.6) + (w * 1.5) + (c * 2.0);
   const netArea = (perimeterMeters * settings.wallHeight) - deductions;
@@ -95,7 +95,6 @@ const handleSave = (points) => {
     points: points,
     perimeter: perimeterMeters.toFixed(2),
     wallHeight: settings.wallHeight,
-    wallArea: netArea,
     doors: d,
     windows: w,
     cabinets: c,
@@ -103,6 +102,8 @@ const handleSave = (points) => {
     paintBrand: settings.paintBrand,
     surfaceType: settings.surfaceType || "Plaster", // Defaulting to Plaster
     needsUndercoat: settings.undercoat || false
+    deductions: deductionsTotal, // This goes to the Excel column
+    wallArea: (perimeterMeters * settings.wallHeight) - deductionsTotal
   };
 
   setTakeoffs([...takeoffs, newEntry]);
