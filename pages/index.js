@@ -70,7 +70,7 @@ const handleFileUpload = (file) => {
 const handleSave = (points) => {
   if (!settings.scale) return alert("Please Calibrate Scale First!");
 
-  // 1. Calculate Perimeter
+  // 1. Calculate Perimeter (Your specific math)
   let perimeterPixels = 0;
   for (let i = 0; i < points.length; i += 2) {
     const x1 = points[i], y1 = points[i+1];
@@ -79,25 +79,31 @@ const handleSave = (points) => {
   }
   const perimeterMeters = (perimeterPixels * settings.scale) / 1000;
 
-  // 2. Prevent NaN with Defaults
+  // 2. Prep & Rate Logic (FIX: Added rates and currentRate definition)
+  const rates = { "Aged Care": 55, "Boutique": 45, "New Build": 35, "House Refresh": 30 };
+  const currentRate = rates[settings.projectType] || 35; 
+  
+  const prepSurcharges = { "Standard": 0, "Patching": 5, "Restoration": 15 };
+  const prepCost = prepSurcharges[settings.prepLevel] || 0;
+
+  // 3. Prevent NaN with Defaults
   const d = Number(settings.doors) || 0;
   const w = Number(settings.windows) || 0;
   const c = Number(settings.cabinets) || 0;
 
-  // 3. Deduction Calculation (Changed name to match your object below)
+  // 4. Deduction Calculation
   const deductionsArea = (d * 1.6) + (w * 1.5) + (c * 2.0);
-  const calculatedWallArea = (perimeterMeters * settings.wallHeight) - deductionsArea;
+  const grossWallArea = perimeterMeters * settings.wallHeight;
+  const calculatedWallArea = grossWallArea - deductionsArea;
 
   const roomName = prompt("Room Name:");
-  if (!roomName) return; // Stop if user cancels
+  if (!roomName) return; 
 
-  const prepSurcharges = { "Standard": 0, "Patching": 5, "Restoration": 15 };
-const prepCost = prepSurcharges[settings.prepLevel] || 0;
-  
+  // 5. Create the Forensic Entry
   const newEntry = {
     id: Date.now(),
     label: roomName,
-    points: [...points], // Use spread to create a clean copy
+    points: [...points], 
     perimeter: perimeterMeters.toFixed(2),
     wallHeight: settings.wallHeight,
     doors: d,
@@ -107,29 +113,17 @@ const prepCost = prepSurcharges[settings.prepLevel] || 0;
     paintBrand: settings.paintBrand || "Dulux",
     surfaceType: settings.surfaceType || "Plaster",
     needsUndercoat: settings.undercoat || false,
-    deductions: deductionsArea, // Fixed the variable name here
-    wallArea: calculatedWallArea > 0 ? calculatedWallArea : 0, // Prevents negative area
-    prepLevel: settings.prepLevel,
-  labour: (perimeterMeters * settings.wallHeight * (currentRate + prepCost)).toFixed(2)
+    prepLevel: settings.prepLevel || "Standard",
+    deductions: deductionsArea, 
+    wallArea: calculatedWallArea > 0 ? calculatedWallArea : 0,
+    // LABOUR MATH: (Base Rate + Prep Surcharge) * Area
+    labour: (calculatedWallArea * (currentRate + prepCost)).toFixed(2)
   };
 
-  // 4. Update state using the functional pattern for reliability
+  // 6. Final State Updates
   setTakeoffs(prev => [...prev, newEntry]);
-  
-  // 5. Reset inventory for the next room
   setSettings(prev => ({ ...prev, doors: 0, windows: 0, cabinets: 0 }));
 };
-
-const undoTask = () => {
-  setTakeoffs((prev) => {
-    if (prev.length === 0) {
-      alert("Nothing left to undo!");
-      return prev;
-    }
-    return prev.slice(0, -1);
-  });
-};
-
   // Calculate the total project price for the export
 const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.labour) || 0), 0);
 
