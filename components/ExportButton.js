@@ -53,19 +53,48 @@ export const exportProfessionalReport = (takeoffs, totalEstimate) => {
     };
   });
 
-  // 2. Add Summary Rows at the bottom
+  // 2. Calculate Grand Totals and Profit Margin
   reportData.push({}); // Empty spacer row
+
+  // Sum up all the individual components
+  const totalNetArea = takeoffs.reduce((sum, t) => sum + (t.wallArea || 0), 0);
   
-  const grandTotalPaint = takeoffs.reduce((sum, t) => {
+  const totalLitersCalculated = takeoffs.reduce((sum, t) => {
     const coverage = t.surfaceType === "Fresh Render" ? 8 : 12;
-    return sum + (t.wallArea / coverage * 2);
-  }, 0).toFixed(2);
+    const coats = (t.surfaceType === "Fresh Render" || t.needsUndercoat ? 1 : 0) + 2;
+    return sum + ((t.wallArea / coverage) * coats);
+  }, 0);
+
+  const totalLabourCalculated = takeoffs.reduce((sum, t) => {
+    const rates = { "Aged Care": 55, "Boutique": 45, "New Build": 35, "House Refresh": 30 };
+    return sum + (t.wallArea * (rates[t.projectType] || 35));
+  }, 0);
+
+  // Material cost (Paint + Consumables) approx $25 per Liter
+  const totalMaterialCost = totalLitersCalculated * 25;
+  const subTotalCost = totalLabourCalculated + totalMaterialCost;
+
+  // --- PROFIT MARGIN LOGIC ---
+  const marginPercent = 0.30; // 30% Profit Margin
+  const profitAmount = subTotalCost * marginPercent;
+  const grandTotalWithMargin = subTotalCost + profitAmount;
+
+  // Add the Rows to the Excel
+  reportData.push({
+    "Room/Area": "SUBTOTAL (Labour + Materials)",
+    "Net Paint Area (m2)": `${totalNetArea.toFixed(2)}m²`,
+    "Est. Paint (L)": `${totalLitersCalculated.toFixed(2)}L`,
+    "Total Est. Cost": `$${subTotalCost.toFixed(2)}`
+  });
 
   reportData.push({
-    "Room/Area": "GRAND TOTALS",
-    "Net Paint Area (m2)": `Total: ${takeoffs.reduce((sum, t) => sum + t.wallArea, 0).toFixed(2)}m²`,
-    "Est. Paint (L)": `${grandTotalPaint}L`,
-    "Total Est. Cost": totalEstimate.toLocaleString('en-AU', { style: 'currency', currency: 'AUD' })
+    "Room/Area": "MANAGEMENT & PROFIT (30%)",
+    "Total Est. Cost": `$${profitAmount.toFixed(2)}`
+  });
+
+  reportData.push({
+    "Room/Area": "GRAND TOTAL (QUOTED PRICE)",
+    "Total Est. Cost": `$${grandTotalWithMargin.toFixed(2)}`
   });
 
   // 3. Generate Excel File with specific formatting
