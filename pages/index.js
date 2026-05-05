@@ -199,26 +199,17 @@ currentSettings={settings || {}} // Provide an empty object fallback
   <style>
   {`
 @media print {
-  @page { 
-    size: A4;
-    margin: 0;
-  }
-
-  body {
-    margin: 0;
-    -webkit-print-color-adjust: exact;
-  }
-
-  /* 🔴 HIDE EVERYTHING BY DEFAULT */
   body * {
-    visibility: hidden;
+    display: none !important;
   }
 
-  /* 🟢 SHOW ONLY REPORT */
-  #rav-print-report, 
-  #rav-print-report * {
-    visibility: visible;
+  #rav-print-report {
+    display: block !important;
+    width: 210mm;
+    padding: 20mm;
+    background: white;
   }
+}
 
   #rav-print-report {
     position: absolute;
