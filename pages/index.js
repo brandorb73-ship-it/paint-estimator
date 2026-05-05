@@ -165,8 +165,8 @@ const CEILING_RATE = 15; // Standard AUD rate for ceilings
   };
 
   // Calculate the total project price for the export
-const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.labour) || 0), 0);
-
+const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.totalRoomValue) || 0), 0);
+  
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', background: '#f7fafc' }}>
       <Sidebar 
@@ -234,7 +234,7 @@ const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.labour
     {/* LOGO FIX: Using a wrapper to ensure it displays */}
     <div style={{ width: '150px', textAlign: 'right' }}>
       <img 
-        src="https://imgur.com/a/xla1u5c" 
+        src="blob:https://imgur.com/e234f799-62ff-42b1-b146-a2a9d1b5c56d" 
         alt="RAV Logo"
         style={{ width: '100%', height: 'auto', display: 'block' }}
         onError={(e) => { e.target.style.display = 'none'; }} 
@@ -253,21 +253,26 @@ const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.labour
         <th style={{ textAlign: 'right' }}>Labour + Materials</th>
       </tr>
     </thead>
-    <tbody>
-      {takeoffs.map((t) => (
-        <tr key={t.id}>
-          <td style={{ fontWeight: 'bold', textTransform: 'capitalize' }}>{t.label}</td>
-          <td>{t.prepLevel || 'Standard'}</td>
-          <td>{t.wallArea.toFixed(2)}m²</td>
-          <td>{t.doors}D / {t.windows}W / {t.cabinets}C</td>
-                    <td>
-  Walls: {t.wallArea.toFixed(2)}m² <br/>
-  {parseFloat(t.ceilingCost) > 0 ? `Ceiling: ${t.ceilingArea}m²` : 'No Ceiling'}
-</td>
-          <td style={{ textAlign: 'right' }}>${parseFloat(t.totalRoomValue).toLocaleString('en-AU', { minimumFractionDigits: 2 })}</td>
-        </tr>
-      ))}
-    </tbody>
+{/* --- TABLE BODY UPDATE --- */}
+<tbody>
+  {takeoffs.map((t) => (
+    <tr key={t.id}>
+      <td style={{ fontWeight: 'bold', textTransform: 'capitalize' }}>{t.label}</td>
+      <td>{t.prepLevel || 'Standard'}</td>
+      <td>
+        {/* Cleanly stacked area info */}
+        <div>Walls: {t.wallArea.toFixed(2)}m²</div>
+        {parseFloat(t.ceilingCost) > 0 && (
+          <div style={{ fontSize: '10px', color: '#666' }}>Ceiling: {t.ceilingArea}m²</div>
+        )}
+      </td>
+      <td>{t.doors}D / {t.windows}W / {t.cabinets}C</td>
+      <td style={{ textAlign: 'right' }}>
+        ${parseFloat(t.totalRoomValue).toLocaleString('en-AU', { minimumFractionDigits: 2 })}
+      </td>
+    </tr>
+  ))}
+</tbody>
   </table>
 
   {/* --- FOOTER / TOTALS --- */}
@@ -282,9 +287,9 @@ const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.labour
       </div>
       <div style={{ textAlign: 'right' }}>
         <p style={{ margin: 0, fontSize: '14px' }}>Project Grand Total</p>
-        <h2 style={{ margin: 0, fontSize: '32px', color: '#2f855a' }}>
-          ${takeoffs.reduce((sum, t) => sum + parseFloat(t.totalRoomValue), 0).toLocaleString('en-AU', { minimumFractionDigits: 2 })}
-        </h2>
+<h2 style={{ margin: 0, fontSize: '32px', color: '#2f855a' }}>
+  ${takeoffs.reduce((sum, t) => sum + parseFloat(t.totalRoomValue), 0).toLocaleString('en-AU', { minimumFractionDigits: 2 })}
+</h2>
       </div>
     </div>
   </div>
