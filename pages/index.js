@@ -42,6 +42,8 @@ const [settings, setSettings] = useState({
     setMounted(true); 
   }, []);
 
+  if (typeof window === "undefined") return null;
+
   // --- FILE UPLOAD LOGIC ---
 const handleFileUpload = (file) => {
   if (!file) return;
