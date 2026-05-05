@@ -96,6 +96,17 @@ const handleSave = (points) => {
   const grossWallArea = perimeterMeters * settings.wallHeight;
   const calculatedWallArea = grossWallArea - deductionsArea;
 
+  // --- TRIM PRICING (Industry Standard for Melbourne) ---
+const DOOR_RATE = 90;    // Includes both sides + frame
+const WINDOW_RATE = 45;  // Internal frame/architrave
+const CABINET_RATE = 120; // Per standard unit/face
+
+const trimLabour = (d * DOOR_RATE) + (w * WINDOW_RATE) + (c * CABINET_RATE);
+const trimMaterial = ((d + w + c) * 0.5) * 35; // Approx 0.5L of Enamel per unit @ $35/L
+  
+  const roomName = prompt("Room Name:");
+  if (!roomName) return; 
+
 // --- CEILING MATH & COSTING ---
   let areaPixels = 0;
   for (let i = 0; i < points.length; i += 2) {
@@ -109,36 +120,7 @@ const handleSave = (points) => {
   const includeCeiling = settings.paintCeiling || false;
   const ceilingCost = includeCeiling ? (floorAreaM2 * CEILING_RATE) : 0;
 
-  // 5. Create the Forensic Entry
-  const newEntry = {
-    id: Date.now(),
-    label: roomName,
-    points: [...points],
-    wallArea: calculatedWallArea > 0 ? calculatedWallArea : 0,
-    ceilingArea: floorAreaM2.toFixed(2),
-    ceilingCost: ceilingCost.toFixed(2),
-    trimCost: (trimLabour + trimMaterial).toFixed(2),
-    // TOTAL SUM: Walls + Trims + Ceiling
-    totalRoomValue: (
-      parseFloat(calculatedWallArea * (currentRate + prepCost)) + 
-      trimLabour + 
-      trimMaterial + 
-      ceilingCost
-    ).toFixed(2)
-  };
-
-// --- TRIM PRICING (Industry Standard for Melbourne) ---
-const DOOR_RATE = 90;    // Includes both sides + frame
-const WINDOW_RATE = 45;  // Internal frame/architrave
-const CABINET_RATE = 120; // Per standard unit/face
-
-const trimLabour = (d * DOOR_RATE) + (w * WINDOW_RATE) + (c * CABINET_RATE);
-const trimMaterial = ((d + w + c) * 0.5) * 35; // Approx 0.5L of Enamel per unit @ $35/L
-  
-  const roomName = prompt("Room Name:");
-  if (!roomName) return; 
-
-  // 5. Create the Forensic Entry
+    // 5. Create the Forensic Entry
   const newEntry = {
     id: Date.now(),
     label: roomName,
@@ -155,12 +137,19 @@ const trimMaterial = ((d + w + c) * 0.5) * 35; // Approx 0.5L of Enamel per unit
     prepLevel: settings.prepLevel || "Standard",
     deductions: deductionsArea, 
     wallArea: calculatedWallArea > 0 ? calculatedWallArea : 0,
+    ceilingArea: floorAreaM2.toFixed(2),
+    ceilingCost: ceilingCost.toFixed(2),
     // LABOUR MATH: (Base Rate + Prep Surcharge) * Area
     labour: (calculatedWallArea * (currentRate + prepCost)).toFixed(2),
     trimCost: (trimLabour + trimMaterial).toFixed(2),
-  totalRoomValue: (parseFloat(calculatedWallArea * (currentRate + prepCost)) + trimLabour + trimMaterial).toFixed(2)
-  };
-
+// TOTAL SUM: Walls + Trims + Ceiling
+    totalRoomValue: (
+      parseFloat(calculatedWallArea * (currentRate + prepCost)) + 
+      trimLabour + 
+      trimMaterial + 
+      ceilingCost
+    ).toFixed(2)
+};
   // 6. Final State Updates
   setTakeoffs(prev => [...prev, newEntry]);
   setSettings(prev => ({ ...prev, doors: 0, windows: 0, cabinets: 0 }));
