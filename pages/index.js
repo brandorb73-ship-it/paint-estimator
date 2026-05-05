@@ -165,7 +165,11 @@ const CEILING_RATE = 15; // Standard AUD rate for ceilings
   };
 
   // Calculate the total project price for the export
-const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.totalRoomValue) || 0), 0);
+const totalProjectQuote = takeoffs?.length > 0 
+    ? takeoffs.reduce((sum, t) => sum + (parseFloat(t.totalRoomValue) || 0), 0) 
+    : 0;
+  // --- ADD THIS RIGHT BEFORE THE 'RETURN' STATEMENT ---
+  if (!mounted) return <div style={{ height: '100vh', background: '#1a202c' }} />;
   
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', background: '#f7fafc' }}>
@@ -288,7 +292,7 @@ currentSettings={settings || {}} // Provide an empty object fallback
       <div style={{ textAlign: 'right' }}>
         <p style={{ margin: 0, fontSize: '14px' }}>Project Grand Total</p>
 <h2 style={{ margin: 0, fontSize: '32px', color: '#2f855a' }}>
-  ${takeoffs.reduce((sum, t) => sum + parseFloat(t.totalRoomValue), 0).toLocaleString('en-AU', { minimumFractionDigits: 2 })}
+  ${(takeoffs || []).reduce((sum, t) => sum + (parseFloat(t.totalRoomValue) || 0), 0).toLocaleString('en-AU', { minimumFractionDigits: 2 })}
 </h2>
       </div>
     </div>
