@@ -69,7 +69,7 @@ const handleFileUpload = (file) => {
 
   // --- SAVE TAKEOFF LOGIC ---
 const handleSave = (points) => {
-  if (!settings.scale) return alert("Please Calibrate Scale First!");
+  if (!settings || !settings.scale) return;
 
   // 1. Calculate Perimeter (Your specific math)
   let perimeterPixels = 0;
@@ -170,8 +170,8 @@ const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.totalR
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', background: '#f7fafc' }}>
       <Sidebar 
-  currentSettings={settings} 
-  setSettings={setSettings} 
+currentSettings={settings || {}} // Provide an empty object fallback
+  setSettings={setSettings}
   mode={mode} 
   setMode={setMode}
   takeoffs={takeoffs}
