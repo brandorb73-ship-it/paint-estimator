@@ -118,10 +118,10 @@ const trimMaterial = ((d + w + c) * 0.5) * 35; // Approx 0.5L of Enamel per unit
   }
   const floorAreaM2 = Math.abs(areaPixels / 2) * Math.pow(settings.scale / 1000, 2);
   
-  const CEILING_RATE = 15; // Standard RAV ceiling rate
-  const includeCeiling = settings.paintCeiling || false;
+const CEILING_RATE = 15; // Standard AUD rate for ceilings
+  const includeCeiling = settings?.paintCeiling || false; // Safe check for Next.js build
   const ceilingCost = includeCeiling ? (floorAreaM2 * CEILING_RATE) : 0;
-
+  
     // 5. Create the Forensic Entry
   const newEntry = {
     id: Date.now(),
