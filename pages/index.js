@@ -324,8 +324,7 @@ currentSettings={settings || {}} // Provide an empty object fallback
       </div>
     </div>
   </div>
-</div>
-
+  
 <div style={{ pageBreakBefore: 'always' }}>
   <h2 style={{ marginBottom: '10px' }}>Working Plan</h2>
 
@@ -336,6 +335,7 @@ currentSettings={settings || {}} // Provide an empty object fallback
       style={{ width: '100%', maxHeight: '250mm', objectFit: 'contain' }}
     />
   )}
+</div>
 </div>
     </div>
   );
