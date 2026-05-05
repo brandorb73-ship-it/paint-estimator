@@ -96,6 +96,29 @@ const handleSave = (points) => {
   const grossWallArea = perimeterMeters * settings.wallHeight;
   const calculatedWallArea = grossWallArea - deductionsArea;
 
+  // --- CEILING MATH (Area of a Polygon) ---
+let areaPixels = 0;
+for (let i = 0; i < points.length; i += 2) {
+  const x1 = points[i], y1 = points[i+1];
+  const x2 = points[(i+2)%points.length], y2 = points[(i+3)%points.length];
+  areaPixels += (x1 * y2) - (x2 * y1);
+}
+// Convert pixels to Square Meters
+const floorAreaM2 = Math.abs(areaPixels / 2) * Math.pow(settings.scale / 1000, 2);
+
+// --- CEILING COSTING ---
+const CEILING_RATE = 15; // Average AUD per m2 for 2 coats of ceiling white
+const includeCeiling = settings.paintCeiling || false;
+const ceilingCost = includeCeiling ? (floorAreaM2 * CEILING_RATE) : 0;
+
+const newEntry = {
+  // ... existing fields ...
+  ceilingArea: floorAreaM2.toFixed(2),
+  ceilingCost: ceilingCost.toFixed(2),
+  // Update Total Room Value to include ceiling
+  totalRoomValue: (parseFloat(calculatedWallArea * (currentRate + prepCost)) + trimLabour + trimMaterial + ceilingCost).toFixed(2)
+};
+
 // --- TRIM PRICING (Industry Standard for Melbourne) ---
 const DOOR_RATE = 90;    // Includes both sides + frame
 const WINDOW_RATE = 45;  // Internal frame/architrave
@@ -239,6 +262,10 @@ const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.labour
           <td>{t.prepLevel || 'Standard'}</td>
           <td>{t.wallArea.toFixed(2)}m²</td>
           <td>{t.doors}D / {t.windows}W / {t.cabinets}C</td>
+                    <td>
+  Walls: {t.wallArea.toFixed(2)}m² <br/>
+  {parseFloat(t.ceilingCost) > 0 ? `Ceiling: ${t.ceilingArea}m²` : 'No Ceiling'}
+</td>
           <td style={{ textAlign: 'right' }}>${parseFloat(t.totalRoomValue).toLocaleString('en-AU', { minimumFractionDigits: 2 })}</td>
         </tr>
       ))}
