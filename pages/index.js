@@ -234,7 +234,7 @@ const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.totalR
     {/* LOGO FIX: Using a wrapper to ensure it displays */}
     <div style={{ width: '150px', textAlign: 'right' }}>
       <img 
-        src="blob:https://imgur.com/e234f799-62ff-42b1-b146-a2a9d1b5c56d" 
+        src="https://i.postimg.cc/dtYd194B/RPP-4.png" 
         alt="RAV Logo"
         style={{ width: '100%', height: 'auto', display: 'block' }}
         onError={(e) => { e.target.style.display = 'none'; }} 
