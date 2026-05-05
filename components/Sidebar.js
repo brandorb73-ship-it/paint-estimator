@@ -173,8 +173,8 @@ const Sidebar = ({ currentSettings, setSettings, mode, setMode, takeoffs, onSave
   <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontWeight: 'bold' }}>
    <input 
   type="checkbox" 
-  checked={settings.paintCeiling || false} 
-  onChange={(e) => setSettings({ ...settings, paintCeiling: e.target.checked })} 
+checked={currentSettings.paintCeiling || false} 
+onChange={(e) => setSettings({ ...currentSettings, paintCeiling: e.target.checked })}
       style={{ marginRight: '10px', width: '18px', height: '18px' }}
     />
     Include Ceiling? (+$15/m²)
