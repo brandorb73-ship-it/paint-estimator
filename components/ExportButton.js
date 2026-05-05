@@ -30,32 +30,46 @@ export const exportProfessionalReport = (takeoffs, totalEstimate) => {
     const estimatedLabour = (t.wallArea * currentRate).toFixed(2);
 
     return {
-      "Room/Area": t.label,
-      "Project Category": t.projectType || "Standard",
-      "Surface Condition": t.surfaceType || "Plaster",
-      "Paint Brand": t.paintBrand || "Dulux",
-      "Coat Spec": `${undercoats}U + ${topCoats}T`,
-      "--- DIMENSIONS ---": "---",
-      "Perimeter (m)": t.perimeter || "0.00",
-      "Wall Height (m)": t.wallHeight || 2.4,
-      "Gross Wall Area (m2)": (t.perimeter * t.wallHeight).toFixed(2),
-      "Deductions (m2)": ( (t.doors * 1.6) + (t.windows * 1.5) + (t.cabinets * 2.0) ).toFixed(2),
-      "Net Paint Area (m2)": t.wallArea.toFixed(2),
-      "Floor/Porch Area (m2)": t.floorArea?.toFixed(2) || "0.00",
-      "--- INVENTORY ---": "---",
-      "Doors (Qty)": t.doors || 0,
-      "Windows (Qty)": t.windows || 0,
-      "Cabinets (Qty)": t.cabinets || 0,
-"--- ESTIMATES ---": "---",
-      "Est. Paint (L)": `${totalLiters}L`,
-      "Labour Cost (AUD)": `$${estimatedLabour}`,
-      "Wall System Cost": `$${(parseFloat(estimatedLabour) + (totalLiters * 25)).toFixed(2)}`, // <--- ADDED COMMA HERE
-      "--- TRIM WORK ---": "---",
-      "Doors/Win/Cab Detail": `${t.doors}D / ${t.windows}W / ${t.cabinets}C`,
-      "Trim Paint Type": "Water-Based Enamel (Aquanamel)",
-      "Trim & Prep Cost": `$${t.trimCost || 0}`, // <--- ADDED COMMA HERE
-      "Total Est. Cost": `$${t.totalRoomValue}` // This is now the final total for the room
-    };
+  "Room/Area": t.label,
+  "Project Category": t.projectType || "Standard",
+  "Surface Condition": t.surfaceType || "Plaster",
+  "Paint Brand": t.paintBrand || "Dulux",
+  "Coat Spec": `${undercoats}U + ${topCoats}T`,
+
+  "--- DIMENSIONS ---": "---",
+  "Perimeter (m)": t.perimeter || "0.00",
+  "Wall Height (m)": t.wallHeight || 2.4,
+  "Gross Wall Area (m2)": (t.perimeter * t.wallHeight).toFixed(2),
+  "Deductions (m2)": ((t.doors * 1.6) + (t.windows * 1.5) + (t.cabinets * 2.0)).toFixed(2),
+  "Net Paint Area (m2)": t.wallArea.toFixed(2),
+
+  // ✅ ADD THESE
+  "Ceiling Area (m2)": t.ceilingArea || "0.00",
+  "Ceiling Cost (AUD)": `$${t.ceilingCost || "0.00"}`,
+
+  "--- INVENTORY ---": "---",
+  "Doors (Qty)": t.doors || 0,
+  "Windows (Qty)": t.windows || 0,
+  "Cabinets (Qty)": t.cabinets || 0,
+
+  "--- ESTIMATES ---": "---",
+  "Est. Paint (L)": `${totalLiters}L`,
+  "Labour Cost (AUD)": `$${estimatedLabour}`,
+
+  // ✅ INCLUDE ceiling in total system
+  "Wall System Cost": `$${(
+    parseFloat(estimatedLabour) + 
+    (totalLiters * 25) + 
+    (parseFloat(t.ceilingCost) || 0)
+  ).toFixed(2)}`,
+
+  "--- TRIM WORK ---": "---",
+  "Doors/Win/Cab Detail": `${t.doors}D / ${t.windows}W / ${t.cabinets}C`,
+  "Trim Paint Type": "Water-Based Enamel (Aquanamel)",
+  "Trim & Prep Cost": `$${t.trimCost || 0}`,
+
+  "Total Est. Cost": `$${t.totalRoomValue}`
+};
   });
 
   // 2. Calculate Grand Totals and Profit Margin
