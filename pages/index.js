@@ -70,6 +70,7 @@ const handleFileUpload = (file) => {
   // --- SAVE TAKEOFF LOGIC ---
 const handleSave = (points) => {
   if (!settings.scale) return alert("Please Calibrate Scale First!");
+  const includeCeiling = settings?.paintCeiling || false;
 
   // 1. Calculate Perimeter (Your specific math)
   let perimeterPixels = 0;
