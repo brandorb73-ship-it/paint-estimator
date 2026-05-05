@@ -198,27 +198,52 @@ currentSettings={settings || {}} // Provide an empty object fallback
 <div id="rav-print-report" style={{ display: 'none' }}>
   <style>
   {`
-    @media print {
-      @page { 
-        margin: 0; /* Set to 0 to strip browser-injected text */
-      }
-      body { 
-        margin: 0; 
-        -webkit-print-color-adjust: exact; 
-      }
-      #rav-print-report { 
-        display: block !important; 
-        position: relative;
-        width: 210mm; /* Fixed A4 Width */
-        min-height: 297mm;
-        padding: 20mm; /* This creates the "internal" margin */
-        margin: 0 auto;
-        background: white !important;
-        box-sizing: border-box;
-      }
-      /* Ensure everything else is wiped out */
-      nav, footer, button, .no-print { display: none !important; }
+@media print {
+  @page { 
+    size: A4;
+    margin: 0;
+  }
+
+  body {
+    margin: 0;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* 🔴 HIDE EVERYTHING BY DEFAULT */
+  body * {
+    visibility: hidden;
+  }
+
+  /* 🟢 SHOW ONLY REPORT */
+  #rav-print-report, 
+  #rav-print-report * {
+    visibility: visible;
+  }
+
+  #rav-print-report {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 210mm;
+    min-height: 297mm;
+    padding: 20mm;
+    background: white;
+    box-sizing: border-box;
+  }
+      /* ✅ STEP 3 — ADD THIS PART HERE */
+    table {
+      width: 100%;
+      border-collapse: collapse;
     }
+
+    tr {
+      page-break-inside: avoid;
+    }
+
+    .footer-box {
+      page-break-inside: avoid;
+    }
+  }
   `}
 </style>
 
@@ -299,6 +324,18 @@ currentSettings={settings || {}} // Provide an empty object fallback
       </div>
     </div>
   </div>
+</div>
+
+<div style={{ pageBreakBefore: 'always' }}>
+  <h2 style={{ marginBottom: '10px' }}>Working Plan</h2>
+
+  {planImage && (
+    <img 
+      src={planImage} 
+      alt="Plan"
+      style={{ width: '100%', maxHeight: '250mm', objectFit: 'contain' }}
+    />
+  )}
 </div>
     </div>
   );
