@@ -169,17 +169,34 @@ const Sidebar = ({ currentSettings, setSettings, mode, setMode, takeoffs, onSave
     <option value="Restoration">Level 3: Heavy Prep (Full Sand/Peeling Walls)</option>
   </select>
 </div>
-<div style={{ marginBottom: '15px', padding: '10px', background: '#f0f4f8', borderRadius: '8px' }}>
-  <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontWeight: 'bold' }}>
-   <input 
-  type="checkbox" 
-checked={currentSettings.paintCeiling || false} 
-onChange={(e) => setSettings({ ...currentSettings, paintCeiling: e.target.checked })}
-      style={{ marginRight: '10px', width: '18px', height: '18px' }}
+<div style={{ 
+  marginBottom: '15px', 
+  padding: '12px', 
+  background: settings.paintCeiling ? '#2d3748' : '#edf2f7', // Darker when active
+  borderRadius: '8px',
+  transition: 'all 0.2s ease'
+}}>
+  <label style={{ 
+    display: 'flex', 
+    alignItems: 'center', 
+    cursor: 'pointer', 
+    fontWeight: '600',
+    color: settings.paintCeiling ? '#ffffff' : '#4a5568' // White text when active
+  }}>
+    <input 
+      type="checkbox" 
+      checked={settings.paintCeiling || false} 
+      onChange={(e) => setSettings({ ...settings, paintCeiling: e.target.checked })}
+      style={{ 
+        marginRight: '12px', 
+        width: '20px', 
+        height: '20px',
+        accentColor: '#2f855a' // RAV Green checkmark
+      }}
     />
     Include Ceiling? (+$15/m²)
   </label>
-</div>    
+</div>
 <button 
   onClick={onUndo} 
   style={{ 
