@@ -170,39 +170,30 @@ const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.labour
 {/* --- PROFESSIONAL PRINT-ONLY REPORT --- */}
 <div id="rav-print-report" style={{ display: 'none' }}>
   <style>
-    {`
-      @media print {
-        @page { 
-          margin: 10mm; /* Small margin to satisfy printer hardware */
-        }
-        body { 
-          visibility: hidden; 
-          background: white !important;
-        }
-        #rav-print-report, #rav-print-report * { 
-          visibility: visible; 
-        }
-        #rav-print-report { 
-          display: block !important; 
-          position: absolute; 
-          left: 0; 
-          top: 0; 
-          width: 100%;
-          padding: 20px; /* This prevents text from hitting the edge */
-          box-sizing: border-box;
-          color: black !important;
-        }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #333; padding: 12px; text-align: left; font-size: 12px; }
-        th { background-color: #f8f9fa !important; -webkit-print-color-adjust: exact; }
-        .footer-box { 
-          margin-top: 40px; 
-          border-top: 2px solid #2f855a; 
-          padding-top: 20px;
-        }
+  {`
+    @media print {
+      @page { 
+        margin: 0; /* Set to 0 to strip browser-injected text */
       }
-    `}
-  </style>
+      body { 
+        margin: 0; 
+        -webkit-print-color-adjust: exact; 
+      }
+      #rav-print-report { 
+        display: block !important; 
+        position: relative;
+        width: 210mm; /* Fixed A4 Width */
+        min-height: 297mm;
+        padding: 20mm; /* This creates the "internal" margin */
+        margin: 0 auto;
+        background: white !important;
+        box-sizing: border-box;
+      }
+      /* Ensure everything else is wiped out */
+      nav, footer, button, .no-print { display: none !important; }
+    }
+  `}
+</style>
 
   {/* --- HEADER --- */}
   <div style={{ 
