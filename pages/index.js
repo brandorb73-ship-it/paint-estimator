@@ -26,6 +26,7 @@ const [settings, setSettings] = useState({
   windowType: 'aluminum',
   exteriorType: 'weatherboard',
   wallHeight: 2.4, // Standard for RAV Property Projects
+  paintCeiling: false,
   doors: 0,
   windows: 0,    // Added
   cabinets: 0,   // Added
