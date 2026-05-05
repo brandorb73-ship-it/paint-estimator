@@ -253,7 +253,6 @@ const totalProjectQuote = takeoffs.reduce((sum, t) => sum + (parseFloat(t.labour
         <ul style={{ fontSize: '11px', paddingLeft: '20px', color: '#333' }}>
           <li><strong>Preparation:</strong> Surfaces assessed and prepared to specified levels (Standard/Patching/Restoration).</li>
           <li><strong>Materials:</strong> Premium specification (Dulux Wash&Wear / Aquanamel systems).</li>
-          <li><strong>Inclusions:</strong> Pricing includes all consumables, local travel, and 30% management margin.</li>
         </ul>
       </div>
       <div style={{ textAlign: 'right' }}>
